@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.logic.FilteredResultRow
 
 @Composable
 fun AnalysisCalendar() {
@@ -265,26 +266,6 @@ private fun getMonthName(month: Int): String {
         11 -> "November"
         12 -> "December"
         else -> "Unknown"
-    }
-}
-
-@Composable
-fun FilteredResultRow(selectedDate: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
-            .background(Color.White, shape = RoundedCornerShape(20.dp))
-            .border(1.dp, Color.Gray, RoundedCornerShape(20.dp))
-            .padding(16.dp)
-    ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text("Groceries", color = Color.Black, fontSize = 16.sp)
-            Text("24 April 17:00", color = Color.Gray, fontSize = 12.sp)
-        }
-        Text("-R100.00", color = Color.Red, fontSize = 16.sp)
     }
 }
 
