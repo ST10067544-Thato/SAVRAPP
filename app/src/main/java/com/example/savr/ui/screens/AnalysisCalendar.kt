@@ -2,23 +2,25 @@ package com.example.savr.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,16 +32,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.logic.FilterButton
+import com.example.savr.ui.logic.FilterType
 import com.example.savr.ui.logic.FilteredResultRow
 
 @Composable
 fun AnalysisCalendar() {
-    var selectedFilter by remember { mutableStateOf("Spends") }
+    var selectedFilter by remember { mutableStateOf(FilterType.SPENDS) }
     var selectedDate by remember { mutableStateOf("23") } // Default selected date
 
     // State for month and year selection
@@ -137,6 +143,7 @@ fun AnalysisCalendar() {
                         }
                     }
                 }
+                
                 // Day headers (Mon-Sun)
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -195,54 +202,34 @@ fun AnalysisCalendar() {
 
                 // Filter buttons for "Spends" and "Categories"
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(vertical = 15.dp)
+                        .padding(vertical = 15.dp, horizontal = 44.dp)
                         .fillMaxWidth()
+                        .background(
+                            color = Color(0xFFFFF4EC), shape = RoundedCornerShape(22.dp)
+                        )
+                        .padding(vertical = 1.dp) // Add horizontal padding
+                        .wrapContentSize(
+                            align = Alignment.Center, unbounded = true
+                        )
                 ) {
-                    OutlinedButton(
-                        onClick = { selectedFilter = "Spends" },
-                        colors = ButtonDefaults.buttonColors(
-                            if (selectedFilter == "Spends") Color(0xFFFF8D3C) else Color(0xFFFFF4EC)
-                        ),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(30.dp))
-                            .weight(1f)
-                            .padding(horizontal = 8.dp)
-                    ) {
-                        Text(
-                            "Spends",
-                            color = if (selectedFilter == "Spends") Color.White else Color(
-                                0xFF0E3E3E
-                            )
-                        )
-                    }
-                    OutlinedButton(
-                        onClick = { selectedFilter = "Categories" },
-                        colors = ButtonDefaults.buttonColors(
-                            if (selectedFilter == "Categories") Color(0xFFFF8D3C) else Color(
-                                0xFFFFF4EC
-                            )
-                        ),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(30.dp))
-                            .weight(1f)
-                            .padding(horizontal = 8.dp)
-                    ) {
-                        Text(
-                            "Categories",
-                            color = if (selectedFilter == "Categories") Color.White else Color(
-                                0xFF0E3E3E
-                            )
-                        )
-                    }
+                    FilterButton( // Use the provided FilterButton composable
+                        text = "Spends",
+                        isSelected = selectedFilter == FilterType.SPENDS,
+                        onClick = { selectedFilter = FilterType.SPENDS })
+
+                    FilterButton( // Use the provided FilterButton composable
+                        text = "Categories",
+                        isSelected = selectedFilter == FilterType.CATEGORIES,
+                        onClick = { selectedFilter = FilterType.CATEGORIES })
                 }
 
                 // Conditional content based on selected filter
-                if (selectedFilter == "Spends") {
+                if (selectedFilter == FilterType.SPENDS) {
                     FilteredResultRow(selectedDate) // Pass selected date to FilteredResultRow
                 } else {
-                    PieChart()
+                    CategoryPieChart(selectedDate) // Pass selectedDate to PieChart
                 }
             }
         }
@@ -270,25 +257,94 @@ private fun getMonthName(month: Int): String {
 }
 
 @Composable
-fun PieChart() {
-    Canvas(
-        modifier = Modifier
-            .size(150.dp)
-            .padding(10.dp)
-    ) {
-        val colors = listOf(Color(0xFFFF8D3C), Color(0xFF6CB5FD), Color(0xFFFBC02D))
-        val values = listOf(0.3f, 0.5f, 0.2f)
-        var startAngle = 0f
+fun CategoryPieChart(selectedDate: String) {
+    // Dummy data for visualization
+    val categoryData = mapOf(
+        "Grocery" to 8, // 8 spends in Grocery category
+        "Car" to 2 // 2 spends in Car category
+    )
 
-        values.forEachIndexed { index, value ->
-            drawArc(
-                color = colors[index],
-                startAngle = startAngle,
-                sweepAngle = value * 360,
-                useCenter = true
-            )
-            startAngle += value * 360
+    val colors = listOf(Color(0xFF3299FF), Color(0xFF6CB5FD)) // Blue color shades
+
+    // Using Column to stack pie chart and legend directly
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp) // General padding for the whole column
+            .wrapContentSize(Alignment.Center), // Center align the content
+        horizontalAlignment = Alignment.CenterHorizontally // Center content horizontally
+    ) {
+        // Pie chart canvas
+        Canvas(modifier = Modifier
+            .size(150.dp) // Ensure the canvas is square
+            .graphicsLayer {
+                shadowElevation = 8.dp.toPx() // Add shadow
+                clip = true // Clip to bounds for shadow
+                shape = CircleShape // Make the shadow circular
+            }) {
+            var startAngle = 0f // Start from 0 for a full circle
+            val totalSpends = categoryData.values.sum()
+
+            categoryData.forEach { (category, spends) ->
+                val sweepAngle = (spends.toFloat() / totalSpends) * 360f // Full circle
+                drawArc(
+                    color = colors[categoryData.keys.indexOf(category) % colors.size],
+                    startAngle = startAngle,
+                    sweepAngle = sweepAngle,
+                    useCenter = true, // Optionally fill the center if you want a solid look
+                )
+
+                // Calculate percentage and display in white
+                val percentage = ((spends.toFloat() / totalSpends) * 100).toInt()
+                val angle = startAngle + sweepAngle / 2
+                val radius = size.minDimension / 2
+                val x = center.x + radius * 0.5f * kotlin.math.cos(Math.toRadians(angle.toDouble()))
+                    .toFloat()
+                val y = center.y + radius * 0.5f * kotlin.math.sin(Math.toRadians(angle.toDouble()))
+                    .toFloat()
+
+                drawContext.canvas.nativeCanvas.drawText("$percentage%",
+                    x,
+                    y,
+                    android.graphics.Paint().apply {
+                        this.color = android.graphics.Color.WHITE // Set text color to white
+                        textSize = 12.sp.toPx()
+                        textAlign = android.graphics.Paint.Align.CENTER
+                    })
+
+                startAngle += sweepAngle
+            }
         }
+
+        // Legend directly below the pie chart
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp), // Adjust spacing as needed
+            horizontalArrangement = Arrangement.Center // Center items in the row
+        ) {
+            val legendItems = categoryData.entries.toList()
+            for (i in legendItems.indices) {
+                LegendItem(legendItems[i].key, colors[i % colors.size])
+                if (i % 2 == 0 && i + 1 < legendItems.size) { // Add spacer after every 2 items
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+            }
+        }
+    }
+}
+
+//function for a single legend item
+@Composable
+fun LegendItem(category: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(16.dp, 16.dp)
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = category, fontSize = 12.sp)
     }
 }
 
