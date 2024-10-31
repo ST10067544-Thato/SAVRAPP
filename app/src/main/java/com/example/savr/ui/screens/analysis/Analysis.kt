@@ -1,4 +1,4 @@
-package com.example.savr.ui.screens
+package com.example.savr.ui.screens.analysis
 
 import androidx.compose.runtime.*
 import androidx.compose.foundation.*

@@ -1,4 +1,4 @@
-package com.example.savr.ui.screens
+package com.example.savr.ui.screens.launchscreens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

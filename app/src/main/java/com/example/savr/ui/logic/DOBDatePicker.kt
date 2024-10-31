@@ -49,7 +49,7 @@ fun DOBDatePicker(onDateSelected: (String) -> Unit) {
             }
     ) {
         Text(
-            text = if (date.isEmpty()) "YYYY/MM/DD" else date, // Show the selected date or placeholder
+            text = if (date.isEmpty()) "Please enter your date of birth." else date, // Show the selected date or placeholder
             color = if (date.isEmpty()) Color.Gray else Color(0xFF093030),
             fontSize = 15.sp, // Match font size
             modifier = Modifier.weight(1f) // Fill available space

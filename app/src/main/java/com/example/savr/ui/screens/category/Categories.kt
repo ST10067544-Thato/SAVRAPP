@@ -1,4 +1,4 @@
-package com.example.savr.ui.screens
+package com.example.savr.ui.screens.category
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -22,11 +22,16 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,8 +51,10 @@ fun Categories() {
         Pair("Gifts", R.drawable.gifts),
         Pair("Savings", R.drawable.savings),
         Pair("Entertainment", R.drawable.entertainment),
-        Pair("More", R.drawable.more)
+        Pair("Add New", R.drawable.more)
     )
+
+    var showDialog by remember { mutableStateOf(false) } // State to control dialog visibility
 
     Column(
         modifier = Modifier
@@ -68,10 +75,11 @@ fun Categories() {
                 "Categories",
                 color = Color(0xFFFFFFFF),
                 fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 30.dp, bottom = 40.dp)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .wrapContentSize(Alignment.Center) // Center the text
             )
         }
 
@@ -105,7 +113,13 @@ fun Categories() {
                                         .padding(horizontal = 5.dp) // Added horizontal padding for spacing
                                 ) {
                                     OutlinedButton(
-                                        onClick = { /* Handle category selection */ },
+                                        onClick = {
+                                            if (label == "Add New") {
+                                                showDialog = true
+                                            } else {
+                                                // Handle category selection for other categories
+                                            }
+                                        },
                                         border = BorderStroke(0.dp, Color.Transparent),
                                         colors = ButtonDefaults.outlinedButtonColors(Color.Transparent),
                                         contentPadding = PaddingValues(),
@@ -145,11 +159,16 @@ fun Categories() {
                 }
             }
         }
+
         // Bottom navigation bar
         BottomNavBar()
     }
-}
 
+    // Show the dialog if showDialog is true
+    if (showDialog) {
+        AddNewCategory(onDismiss = { showDialog = false })
+    }
+}
 
 @Preview(showBackground = true)
 @Composable

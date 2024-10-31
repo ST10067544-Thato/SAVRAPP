@@ -1,10 +1,9 @@
-package com.example.savr.ui.screens
+package com.example.savr.ui.screens.launchscreens
 
 import androidx.compose.runtime.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
