@@ -19,11 +19,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.CustomNotificationBar
 
 @Composable
-fun Login() {
+fun Login(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -140,7 +142,9 @@ fun Login() {
                     contentAlignment = Alignment.Center // Centering the button
                 ) {
                     Button(
-                        onClick = { /* TODO: Add log in logic */ },
+                        onClick = { navController.navigate("home") {
+                            popUpTo("launch_screen") { inclusive = true } // Optional: Clear back stack
+                        } },
                         colors = ButtonDefaults.buttonColors(
                             Color(0xFFFF8D3C), // Orange background
                             contentColor = Color.White // White text color
@@ -150,7 +154,8 @@ fun Login() {
                             .clip(RoundedCornerShape(30.dp))
                             .fillMaxWidth(0.65f) // Full width to ensure proper centering
                     ) {
-                        Text("Log In",
+                        Text(
+                            "Log In",
                             fontSize = 20.sp,
                         )
                     }
@@ -180,7 +185,7 @@ fun Login() {
                     contentAlignment = Alignment.Center // Centering the button
                 ) {
                     Button(
-                        onClick = { /* TODO: Add sign up logic */ },
+                        onClick = { navController.navigate("signup") },
                         colors = ButtonDefaults.buttonColors(
                             Color(0xFFFFE7E7), // Light background
                             contentColor = Color(0xFF0E3E3E) // Dark text color
@@ -190,7 +195,8 @@ fun Login() {
                             .clip(RoundedCornerShape(30.dp))
                             .fillMaxWidth(0.65f) // Full width to ensure proper centering
                     ) {
-                        Text("Sign Up",
+                        Text(
+                            "Sign Up",
                             fontSize = 20.sp,
                         )
                     }
@@ -247,5 +253,6 @@ fun Login() {
 @Composable
 fun PreviewLoginScreen()
 {
-    Login()
+    val navController = rememberNavController()// Create a NavController for preview
+    Login(navController)
 }

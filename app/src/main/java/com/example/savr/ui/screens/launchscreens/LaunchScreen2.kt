@@ -23,72 +23,74 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 
 @Composable
-fun LaunchScreen2() {
+fun LaunchScreen2(navController: NavController) {
     Column(
         modifier = Modifier
-            .fillMaxSize() // Fill the entire screen
+            .fillMaxSize()
             .background(Color(0xFFFFFFFF))
-            .clip(RoundedCornerShape(40.dp)) // Rounded corners for the background
-            .padding(horizontal = 16.dp) // Optional horizontal padding for content
+            .clip(RoundedCornerShape(40.dp))
+            .padding(horizontal = 16.dp)
     ) {
-        // Spacer to push content to the center vertically
-        Spacer(modifier = Modifier.weight(1f)) // Pushes content down
+        Spacer(modifier = Modifier.weight(1f))
 
-        // Centered Row for the logo
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 10.dp), // Adjust padding as needed
-            horizontalArrangement = Arrangement.Center // Center logo
+                .padding(bottom = 10.dp),
+            horizontalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.savr_logo), // Use your local image resource
+                painter = painterResource(id = R.drawable.savr_logo),
                 contentDescription = "Logo",
-                modifier = Modifier.size(200.dp) // Set the size for the logo
+                modifier = Modifier.size(200.dp)
             )
         }
 
-        // Button for Log In
         Button(
-            onClick = { /* Handle Log In click */ },
+            onClick = { navController.navigate("login") }, // Navigate to Login
             modifier = Modifier
-                .fillMaxWidth(0.6f) // Make button 60% of the screen width
-                .align(Alignment.CenterHorizontally) // Center the button
-                .padding(bottom = 8.dp) // Smaller bottom padding
-                .clip(RoundedCornerShape(30.dp)), // Rounded corners for the button
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8D3C)) // Button color
+                .fillMaxWidth(0.6f)
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 8.dp)
+                .clip(RoundedCornerShape(30.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF8D3C))
         ) {
             Text(
-                text = "Log In", color = Color(0xFFFFFFFF), fontSize = 16.sp, // Smaller font size
-                modifier = Modifier.padding(vertical = 8.dp) // Padding for button text
+                text = "Log In",
+                color = Color(0xFFFFFFFF),
+                fontSize = 16.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
 
-        // Button for Sign Up
         Button(
-            onClick = { /* Handle Sign Up click */ },
+            onClick = { navController.navigate("signup") }, // Navigate to SignUp
             modifier = Modifier
-                .fillMaxWidth(0.6f) // Make button 60% of the screen width
-                .align(Alignment.CenterHorizontally) // Center the button
-                .clip(RoundedCornerShape(30.dp)), // Rounded corners for the button
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFE7E7)) // Button color
+                .fillMaxWidth(0.6f)
+                .align(Alignment.CenterHorizontally)
+                .clip(RoundedCornerShape(30.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFE7E7))
         ) {
             Text(
-                text = "Sign Up", color = Color(0xFF0E3E3E), fontSize = 16.sp, // Smaller font size
-                modifier = Modifier.padding(vertical = 8.dp) // Padding for button text
+                text = "Sign Up",
+                color = Color(0xFF0E3E3E),
+                fontSize = 16.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
 
-        // Spacer to push content to the center vertically
-        Spacer(modifier = Modifier.weight(1f)) // Pushes content up
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewLaunchScreen2() {
-    LaunchScreen2()
+    val navController = rememberNavController()// Create a NavController for preview
+    LaunchScreen2(navController)
 }

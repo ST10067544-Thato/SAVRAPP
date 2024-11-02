@@ -3,6 +3,7 @@ package com.example.savr.ui.logic
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.savr.R
 
 @Composable
@@ -79,14 +81,15 @@ fun FilteredResultRow(selectedDate: String) {
 
 //Filtered results with nothing passed in it for home screen
 @Composable
-fun FilteredHomeResultRow() {
+fun FilteredHomeResultRow(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(Color(0xFFFFF4EC))
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable { navController.navigate("add_expense") }, // Make clickable
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

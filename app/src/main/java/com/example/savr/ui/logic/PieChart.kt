@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun CategoryPieChart(selectedDate: String) {
-    // Dummy data for visualization
+    // Dummy Data for visualization
     val categoryData = mapOf(
         "Grocery" to 8, // 8 spends in Grocery category
         "Car" to 2 // 2 spends in Car category

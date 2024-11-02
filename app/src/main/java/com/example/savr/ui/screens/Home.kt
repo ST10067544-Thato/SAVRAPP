@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -32,15 +33,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
-import com.example.savr.ui.logic.FilterButton
-import com.example.savr.ui.logic.FilterType
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.logic.FilterButton
+import com.example.savr.ui.logic.FilterType
 import com.example.savr.ui.logic.FilteredHomeResultRow
 
 @Composable
-fun Home() {
+fun Home(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -214,26 +217,30 @@ fun Home() {
         }
         //little motivation message which will display and change dynamically based on user saving goal progress
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            horizontalArrangement = Arrangement.Center, // Center horizontally
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(bottom = 20.dp, start = 60.dp, end = 60.dp)
+                .padding(bottom = 20.dp)
                 .fillMaxWidth()
         ) {
-            //FIRE EMOJI
-            Image(
-                painter = painterResource(id = R.drawable.fire_emoji),
-                contentDescription = "income",
-                modifier = Modifier.size(15.dp)
-            )
-            Text(
-                "30% of your goal acheived, looks good!",
-                color = Color(0xFFFFFFFF),
-                fontSize = 14.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 6.dp)
-            )
+            Row( // Wrap emoji and text in an inner Row
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.wrapContentSize(Alignment.Center) // Center inner Row
+            ) {
+                //FIRE EMOJI
+                Image(
+                    painter = painterResource(id = R.drawable.fire_emoji),
+                    contentDescription = "income",
+                    modifier = Modifier.size(15.dp)
+                )
+                Text(
+                    "30% of your goal acheived, looks good!",
+                    color = Color(0xFFFFFFFF),
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                )
+            }
         }
 
         // Curved white layered page for Home elements
@@ -269,48 +276,6 @@ fun Home() {
                         )
                         .padding(vertical = 11.dp)
                 ) {
-//                    Column(
-//                        modifier = Modifier
-//                            .padding(end = 33.dp)
-//                            .width(71.dp)
-//                    ) {
-//                        //category or goal's icon plus a circle progressbar around it which will fill until 100% based on progress
-//                        IconButton(
-//                            onClick = { },
-//                            modifier = Modifier
-//                                .padding(bottom = 6.dp)
-//                                .height(71.dp)
-//                                .fillMaxWidth()
-//                        ) {
-//                            CoilImage(
-//                                imageModel = { "https://i.imgur.com/1tMFzp8.png" },
-//                                imageOptions = ImageOptions(contentScale = ContentScale.Crop),
-//                            )
-//                        }
-//                        TextButton(
-//                            onClick = {},
-//                            modifier = Modifier
-//                                .padding(horizontal = 9.dp)
-//                                .width(53.dp)
-//                        ) {
-//                            Text(
-//                                "Savings on goals",
-//                                color = Color(0xFFFFFFFF),
-//                                fontSize = 12.sp,
-//                            )
-//                        }
-//                    }
-//                    Column(
-//                        modifier = Modifier
-//                            .padding(end = 16.dp)
-//                            .border(
-//                                width = 2.dp,
-//                                color = Color(0xFFFFF4EC),
-//                            )
-//                            .width(2.dp)
-//                            .height(108.dp)
-//                    )
-                    {}
                     Column(
                         modifier = Modifier.width(220.dp)
                     ) {
@@ -396,6 +361,7 @@ fun Home() {
                 //Recent transactions section which will display recent transactions filtered based
                 // on the period the user chooses from the button: "Daily", "Weekly" or "Monthly"
                 Row(
+                    horizontalArrangement = Arrangement.Center, // Center horizontally
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -416,16 +382,17 @@ fun Home() {
                         isSelected = selectedFilter == FilterType.MONTHLY,
                         onClick = { selectedFilter = FilterType.MONTHLY })
                 }
-                FilteredHomeResultRow() // Display the Conditional content based on selected filter
+                FilteredHomeResultRow(navController) // Display the Conditional content based on selected filter
             }
         }
-        BottomNavBar()
+        BottomNavBar(navController = navController, selectedRoute = "home")
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomePreview() {
-    Home()
+    val navController = rememberNavController()// Create a NavController for preview
+    Home(navController)
 }
 

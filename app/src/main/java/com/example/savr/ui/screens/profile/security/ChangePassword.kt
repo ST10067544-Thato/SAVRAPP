@@ -1,4 +1,4 @@
-package com.example.savr.ui.screens.settings.security
+package com.example.savr.ui.screens.profile.security
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,13 +32,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.InputField
+import com.example.savr.ui.logic.ScreenTopSection
 
 @Composable
-fun ChangePassword() {
+fun ChangePassword(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,39 +54,7 @@ fun ChangePassword() {
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            // Custom Notification Bar
-            CustomNotificationBar()
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween, // Spread items out
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* Handle back navigation */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
-                }
-                Text(
-                    text = "Change Password",
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f) // Allow text to take up remaining space
-                )
-                IconButton(onClick = { /* Handle notifications */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_notifications),
-                        contentDescription = "Notifications",
-                        tint = Color.White
-                    )
-                }
-            }
+            ScreenTopSection(navController = navController, title = "Change Password", onBack = { navController.popBackStack() }) // Add this line
         }
 
         Box(
@@ -138,12 +109,13 @@ fun ChangePassword() {
                 }
         }
         }
-        BottomNavBar()
+        BottomNavBar(navController = navController, selectedRoute = "profile")
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun ChangePasswordPreview() {
-    ChangePassword()
+    val navController = rememberNavController()// Create a NavController for preview
+    ChangePassword(navController)
 }

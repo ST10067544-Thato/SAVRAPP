@@ -1,4 +1,4 @@
-package com.example.savr.ui.screens.settings
+package com.example.savr.ui.screens.profile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -36,13 +36,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.logic.ScreenTopSection
 import com.example.savr.ui.screens.category.LogoutDialog
 
 @Composable
-fun Profile() {
+fun Profile(navController: NavController) {
     var showLogoutDialog by remember { mutableStateOf(false) } // State for dialog visibility
     Column(
         modifier = Modifier
@@ -56,39 +59,7 @@ fun Profile() {
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            // Custom Notification Bar
-            CustomNotificationBar()
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween, // Spread items out
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* Handle back navigation */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
-                }
-                Text(
-                    text = "Profile",
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f) // Allow text to take up remaining space
-                )
-                IconButton(onClick = { /* Handle notifications */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_notifications),
-                        contentDescription = "Notifications",
-                        tint = Color.White
-                    )
-                }
-            }
+            ScreenTopSection(navController = navController, title = "Profile", onBack = { navController.popBackStack() }) // Add this line
         }
 
         Box(
@@ -128,29 +99,29 @@ fun Profile() {
                 )
 
                 // Profile items
-                ProfileItem("Edit Profile", R.drawable.profile_settings) { /* Handle Edit Profile click */ }
-                ProfileItem("Security", R.drawable.security) { }
-                ProfileItem("Settings", R.drawable.settings) { /* Handle Settings click */ }
-                ProfileItem("Logout", R.drawable.logout) { showLogoutDialog = true } // Show dialog on Logout click
+                ProfileItem("Edit Profile", R.drawable.profile_settings) { navController.navigate("edit_profile")  }
+                ProfileItem("Security", R.drawable.security) { navController.navigate("security_settings")}
+                ProfileItem("Settings", R.drawable.settings) { navController.navigate("notification_settings") }
+                ProfileItem("Logout", R.drawable.logout) {showLogoutDialog = true} // Show dialog on Logout click
             }
         }
-
-        BottomNavBar()
+        BottomNavBar(navController = navController, selectedRoute = "profile")
     }
     // Logout Dialog
     if (showLogoutDialog) {
-        LogoutDialog(
-            onDismiss = { showLogoutDialog = false },
-            onLogout = {
-                // Handle logout logic here
-                showLogoutDialog = false
-            }
-        )
+        LogoutDialog(onDismiss = { showLogoutDialog = false }, onLogout = {
+            // Handle logout logic here
+            showLogoutDialog = false
+        })
     }
 }
 
 @Composable
-fun ProfileItem(text: String, iconRes: Int, onClick: () -> Unit) { // Added onClick parameter, removed color
+fun ProfileItem(
+    text: String,
+    iconRes: Int,
+    onClick: () -> Unit
+) { // Added onClick parameter, removed color
     OutlinedButton(
         onClick = onClick, // Pass onClick lambda to OutlinedButton
         border = BorderStroke(0.dp, Color.Transparent),
@@ -182,5 +153,6 @@ fun ProfileItem(text: String, iconRes: Int, onClick: () -> Unit) { // Added onCl
 @Preview(showBackground = true)
 @Composable
 fun ProfilePreview() {
-    Profile()
+    val navController = rememberNavController()// Create a NavController for preview
+    Profile(navController)
 }

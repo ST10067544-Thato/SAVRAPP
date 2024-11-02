@@ -1,5 +1,6 @@
 package com.example.savr.ui.screens.analysis
 
+import android.icu.util.Calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,21 +32,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CategoryPieChart
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.FilterButton
 import com.example.savr.ui.logic.FilterType
-import com.example.savr.ui.logic.FilteredResultRow
+import com.example.savr.ui.logic.FilteredHomeResultRow
+import com.example.savr.ui.logic.ScreenTopSection
 
 @Composable
-fun AnalysisCalendar() {
+fun AnalysisCalendar(navController: NavController) {
+    val currentDate = Calendar.getInstance()
     var selectedFilter by remember { mutableStateOf(FilterType.SPENDS) }
-    var selectedDate by remember { mutableStateOf("23") } // Default selected date
+    var selectedDate by remember { mutableStateOf(currentDate.get(Calendar.DAY_OF_MONTH).toString()) }
 
-    // State for month and year selection
-    var selectedMonth by remember { mutableStateOf(4) } // Default to April (1-based index)
-    var selectedYear by remember { mutableStateOf(2024) } // Default year
+    // State for month and year selection, initialized with current date
+    var selectedMonth by remember { mutableStateOf(currentDate.get(Calendar.MONTH) + 1) }
+    var selectedYear by remember { mutableStateOf(currentDate.get(Calendar.YEAR)) }
 
     Column(
         modifier = Modifier
@@ -59,16 +64,7 @@ fun AnalysisCalendar() {
                 .padding(top = 10.dp, bottom = 20.dp)
                 .padding(horizontal = 36.dp)
         ) {
-            CustomNotificationBar()
-            Text(
-                text = "Calendar",
-                color = Color.White,
-                fontSize = 30.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 30.dp, bottom = 40.dp)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            )
+            ScreenTopSection(navController = navController, title = "Calendar Overview", onBack = { navController.popBackStack() }) // Add this line
         }
 
         // Curved white layered page for Calendar
@@ -87,7 +83,9 @@ fun AnalysisCalendar() {
                     .padding(horizontal = 36.dp)
                     .fillMaxWidth()
             ) {
+                var expandedMonth by remember { mutableStateOf(false) }
                 var expandedYear by remember { mutableStateOf(false) }
+
                 // Month and Year navigation with dropdown
                 Row(
                     modifier = Modifier
@@ -95,8 +93,6 @@ fun AnalysisCalendar() {
                         .padding(vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween // Align items to edges
                 ) {
-                    var expandedMonth by remember { mutableStateOf(false) }
-
                     Row { // Wrap month selection in a Row
                         TextButton(onClick = { expandedMonth = !expandedMonth }) {
                             Row {
@@ -139,14 +135,20 @@ fun AnalysisCalendar() {
 
                 // Day headers (Mon-Sun)
                 Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.SpaceAround, // Use SpaceAround for even distribution
                     modifier = Modifier
                         .padding(horizontal = 20.dp, vertical = 4.dp)
                         .fillMaxWidth()
                 ) {
                     val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
                     daysOfWeek.forEach { day ->
-                        Text(day, color = Color(0xFF3299FF), fontSize = 14.sp)
+                        Box( // Wrap each day header in a Box
+                            modifier = Modifier
+                                .weight(1f) // Distribute weight evenly
+                                .wrapContentSize(Alignment.Center) // Center content in the Box
+                        ) {
+                            Text(day, color = Color(0xFF3299FF), fontSize = 14.sp)
+                        }
                     }
                 }
 
@@ -160,7 +162,7 @@ fun AnalysisCalendar() {
                 )
                 daysInMonth.forEach { week ->
                     Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        horizontalArrangement = Arrangement.SpaceAround, // Use SpaceAround for even distribution
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
@@ -220,14 +222,14 @@ fun AnalysisCalendar() {
 
                 // Conditional content based on selected filter
                 if (selectedFilter == FilterType.SPENDS) {
-                    FilteredResultRow(selectedDate) // Pass selected date to FilteredResultRow
+                    FilteredHomeResultRow(navController) // Pass selected date to FilteredResultRow
                 } else {
                     CategoryPieChart(selectedDate) // Pass selectedDate to PieChart
                 }
             }
         }
         // Bottom navigation
-        BottomNavBar()
+        BottomNavBar(navController = navController, selectedRoute = "analysis")
     }
 }
 
@@ -252,7 +254,8 @@ private fun getMonthName(month: Int): String {
 @Preview(showBackground = true)
 @Composable
 fun AnalysisCalendarPreview() {
-    AnalysisCalendar()
+    val navController = rememberNavController()// Create a NavController for preview
+    AnalysisCalendar(navController)
 }
 
 

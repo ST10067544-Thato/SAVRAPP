@@ -34,13 +34,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.FilteredHomeResultRow
+import com.example.savr.ui.logic.ScreenTopSection
 
 @Composable
-fun Transactions() {
+fun Transactions(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,39 +56,7 @@ fun Transactions() {
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            // Custom Notification Bar
-            CustomNotificationBar()
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween, // Spread items out
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* Handle back navigation */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
-                }
-                Text(
-                    text = "Transactions",
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f) // Allow text to take up remaining space
-                )
-                IconButton(onClick = { /* Handle notifications */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_notifications),
-                        contentDescription = "Notifications",
-                        tint = Color.White
-                    )
-                }
-            }
+            ScreenTopSection(navController = navController, title = "Transactions", onBack = { navController.popBackStack() }) // Add this line
         }
 
         Column(
@@ -148,7 +119,7 @@ fun Transactions() {
                     .padding(top = 26.dp)
             ) {
                 items(listOf("April", "March")) { month ->
-                    TransactionSection(month)
+                    TransactionSection(month, navController)
                 }
             }
 
@@ -164,7 +135,7 @@ fun Transactions() {
                     )
             ) {
                 OutlinedButton(
-                    onClick = { /* Handle button click */ },
+                    onClick = { navController.navigate("add_expense") },
                     border = BorderStroke(0.dp, Color.Transparent),
                     colors = ButtonDefaults.outlinedButtonColors(Color.Transparent),
                     contentPadding = PaddingValues(),
@@ -182,13 +153,12 @@ fun Transactions() {
                 }
             }
         }
-
-        BottomNavBar() // Place the Bottom Navigation Bar here to keep it visible
+        BottomNavBar(navController = navController, selectedRoute = "transactions") // Place the Bottom Navigation Bar here to keep it visible
     }
 }
 
 @Composable
-fun TransactionSection(month: String) {
+fun TransactionSection(month: String, navController: NavController) {
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -202,9 +172,9 @@ fun TransactionSection(month: String) {
         )
         // Display transactions for the given month vertically
         Column {
-            FilteredHomeResultRow()
-            FilteredHomeResultRow()
-            FilteredHomeResultRow()
+            FilteredHomeResultRow(navController)
+            FilteredHomeResultRow(navController)
+            FilteredHomeResultRow(navController)
         }
     }
 }
@@ -252,5 +222,6 @@ fun IncomeExpenseCard(
 @Preview(showBackground = true)
 @Composable
 fun TransactionsPreview() {
-    Transactions()
+    val navController = rememberNavController()// Create a NavController for preview
+    Transactions(navController)
 }

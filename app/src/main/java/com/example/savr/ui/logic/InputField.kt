@@ -1,6 +1,7 @@
 package com.example.savr.ui.logic
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,9 @@ fun InputField(
     onValueChange: (String) -> Unit,
     trailingIcon: @Composable (() -> Unit)? = null,
     isCompact: Boolean = false, // Add a flag for compact background
+    readOnly: Boolean = false, // Add readOnly parameter
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
     Column {
         Text(
@@ -48,6 +52,7 @@ fun InputField(
                     vertical = if (isCompact) 10.dp else 15.dp,
                     horizontal = if (isCompact) 18.dp else 35.dp
                 )
+                .clickable { onClick() } // Make Row clickable
         ) {
             BasicTextField(value = value,
                 onValueChange = onValueChange,
@@ -58,7 +63,9 @@ fun InputField(
                         Text(placeholder, color = Color.Gray) // Gray placeholder
                     }
                     innerTextField()
-                })
+                },
+                readOnly = readOnly // Apply readOnly property
+            )
             trailingIcon?.invoke() // Invoke trailing icon if provided
         }
     }

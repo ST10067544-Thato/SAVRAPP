@@ -1,4 +1,4 @@
-package com.example.savr.ui.screens.settings.usersettings
+package com.example.savr.ui.screens.profile.usersettings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -16,8 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -31,18 +29,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.savr.R
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.ui.logic.BottomNavBar
-import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.logic.ScreenTopSection
 
 @Composable
-fun NotificationSettings() {
+fun NotificationSettings(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,39 +51,11 @@ fun NotificationSettings() {
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            // Custom Notification Bar
-            CustomNotificationBar()
+            ScreenTopSection(
+                navController = navController,
+                title = "Notification Settings",
+                onBack = { navController.popBackStack() }) // Add this line
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween, // Spread items out
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* Handle back navigation */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
-                }
-                Text(
-                    text = "Notification Settings",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f) // Allow text to take up remaining space
-                )
-                IconButton(onClick = { /* Handle notifications */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_notifications),
-                        contentDescription = "Notifications",
-                        tint = Color.White
-                    )
-                }
-            }
         }
 
         // State for the switches
@@ -116,39 +84,34 @@ fun NotificationSettings() {
             ) {
 
                 // General Notifications switch
-                SwitchItem(
-                    text = "General Notifications",
+                SwitchItem(text = "General Notifications",
                     isChecked = isGeneralNotificationsEnabled,
                     onCheckedChange = { isGeneralNotificationsEnabled = it })
 
                 // Sound switch
-                SwitchItem(
-                    text = "Sound",
+                SwitchItem(text = "Sound",
                     isChecked = isSoundEnabled,
                     onCheckedChange = { isSoundEnabled = it })
 
                 // Vibrate switch
-                SwitchItem(
-                    text = "Vibrate",
+                SwitchItem(text = "Vibrate",
                     isChecked = isVibrateEnabled,
                     onCheckedChange = { isVibrateEnabled = it })
 
                 // Transaction Update switch
-                SwitchItem(
-                    text = "Transaction Update",
+                SwitchItem(text = "Transaction Update",
                     isChecked = isTransactionUpdateEnabled,
                     onCheckedChange = { isTransactionUpdateEnabled = it })
 
                 // Goal Reminder switch
-                SwitchItem(
-                    text = "Goal Reminder",
+                SwitchItem(text = "Goal Reminder",
                     isChecked = isGoalReminderEnabled,
                     onCheckedChange = { isGoalReminderEnabled = it })
             }
 
 
         }
-        BottomNavBar()
+        BottomNavBar(navController = navController, selectedRoute = "profile")
     }
 }
 
@@ -199,5 +162,6 @@ fun SwitchItem(text: String, isChecked: Boolean, onCheckedChange: (Boolean) -> U
 @Preview(showBackground = true)
 @Composable
 fun NotificationSettingsPreview() {
-    NotificationSettings()
+    val navController = rememberNavController()// Create a NavController for preview
+    NotificationSettings(navController)
 }

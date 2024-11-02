@@ -17,10 +17,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.savr.R
 
 @Composable
-fun BottomNavBar() { // New parameter for the selected icon
+fun BottomNavBar(
+    navController: NavController,
+    selectedRoute: String
+) { // New parameter for the selected icon
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -39,52 +43,81 @@ fun BottomNavBar() { // New parameter for the selected icon
         ) {
             // Icon Buttons
             IconButton(
-                onClick = { /* Handle click for icon 1 */ },
+                onClick = { navController.navigate("home") },// Navigate to Home on click
                 modifier = Modifier.padding(end = 20.dp)
             ) {
+                val icon = if (selectedRoute == "home") {
+                    painterResource(id = R.drawable.selected_home)
+                } else {
+                    painterResource(id = R.drawable.home)
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.home), // Load the home icon
+                    painter = icon, // Load the home icon
                     contentDescription = "Home",
                     modifier = Modifier.size(30.dp) // Use size for uniformity
                 )
             }
 
             IconButton(
-                onClick = { /* Handle click for icon 2 */ },
+                onClick = { navController.navigate("analysis") },
                 modifier = Modifier.padding(end = 20.dp)
             ) {
+                val icon = if (selectedRoute == "analysis") {
+                    painterResource(id = R.drawable.selected_analysis) // Selected icon
+                } else {
+                    painterResource(id = R.drawable.analysis) // Regular icon
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.analysis), // Load the analysis icon
-                    contentDescription = "Analysis", modifier = Modifier.size(30.dp)
+                    painter = icon, // Load the analysis icon
+                    contentDescription = "Analysis",
+                    modifier = Modifier.size(30.dp) // Use size for uniformity
                 )
             }
 
             IconButton(
-                onClick = { /* Handle click for icon 3 */ },
+                onClick = { navController.navigate("transactions") },
                 modifier = Modifier.padding(end = 25.dp)
             ) {
+                val icon = if (selectedRoute == "transactions") {
+                    painterResource(id = R.drawable.selected_transactions) // Selected icon
+                } else {
+                    painterResource(id = R.drawable.transactions) // Regular icon
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.transactions), // Load the transactions icon
-                    contentDescription = "Transactions", modifier = Modifier.size(30.dp)
+                    painter = icon, // Load the transactions icon
+                    contentDescription = "Transactions",
+                    modifier = Modifier.size(30.dp) // Use size for uniformity
                 )
             }
 
             IconButton(
-                onClick = { /* Handle click for icon 4 */ },
+                onClick = { navController.navigate("categories") },
                 modifier = Modifier.padding(end = 28.dp)
             ) {
+                val icon = if (selectedRoute == "categories") {
+                    painterResource(id = R.drawable.selected_category) // Selected icon
+                } else {
+                    painterResource(id = R.drawable.category) // Regular icon
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.selected_category), // Use the passed icon for category
-                    contentDescription = "Category", modifier = Modifier.size(40.dp)
+                    painter = icon, // Load the category icon
+                    contentDescription = "Categories",
+                    modifier = Modifier.size(30.dp) // Use size for uniformity
                 )
             }
 
             IconButton(
-                onClick = { /* Handle click for icon 5 */ }, modifier = Modifier
+                onClick = { navController.navigate("profile") }, modifier = Modifier
             ) {
+                val icon = if (selectedRoute == "profile") {
+                    painterResource(id = R.drawable.selected_profile) // Selected icon
+                } else {
+                    painterResource(id = R.drawable.profile) // Regular icon
+                }
                 Image(
-                    painter = painterResource(id = R.drawable.profile), // Load the profile icon
-                    contentDescription = "Profile", modifier = Modifier.size(30.dp)
+                    painter = icon, // Load the profile icon
+                    contentDescription = "Profile",
+                    modifier = Modifier.size(30.dp) // Use size for uniformity
                 )
             }
         }

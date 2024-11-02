@@ -31,10 +31,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.ui.logic.CustomNotificationBar
 
 @Composable
-fun SignUp() {
+fun SignUp(navController: NavController) {
     var fullName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var mobileNumber by remember { mutableStateOf("") }
@@ -142,7 +144,7 @@ fun SignUp() {
                         modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center
                     ) {
                         TextButton(
-                            onClick = { /* Navigate to Login screen */ },
+                            onClick = { navController.navigate("login")  },
                             modifier = Modifier.padding(bottom = 20.dp)
                         ) {
                             Text(
@@ -192,5 +194,6 @@ fun InputField(
 @Preview(showBackground = true)
 @Composable
 fun SignUpPreview() {
-    SignUp()
+    val navController = rememberNavController()// Create a NavController for preview
+    SignUp(navController)
 }

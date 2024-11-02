@@ -1,9 +1,9 @@
 package com.example.savr.ui.screens.transactions
 
+import android.app.Application
 import android.icu.util.Calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,10 +16,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,73 +35,53 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.BottomNavBar
-import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.InputField
+import com.example.savr.ui.logic.ScreenTopSection
+import com.example.savr.ui.shared.SharedViewModel
+import com.example.savr.ui.shared.SharedViewModelFactory
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddandViewExpenses() {
+fun AddandViewExpenses(navController: NavController) {
+    val context = LocalContext.current.applicationContext as Application
+    val viewModel: SharedViewModel = viewModel(factory = SharedViewModelFactory(context)) // Correctly instantiate the ViewModel
+
     var category by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var expenseTitle by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf("") }
+
+    // Observe categoriesList for changes
+    val categories by viewModel.categoriesList.collectAsState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFFF8D3C)) // Base orange background
     ) {
-        // Main content area with the notification bar and text
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            // Custom Notification Bar
-            CustomNotificationBar()
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween, // Spread items out
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { /* Handle back navigation */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_arrow_back),
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
-                }
-                Text(
-                    text = "Add Expense",
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.weight(1f) // Allow text to take up remaining space
-                )
-                IconButton(onClick = { /* Handle notifications */ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_notifications),
-                        contentDescription = "Notifications",
-                        tint = Color.White
-                    )
-                }
-            }
+            ScreenTopSection(navController = navController,
+                title = "Add an Expense",
+                onBack = { navController.popBackStack() }) // Add this line
         }
 
-
-        // Scrollable white layered page with LazyColumn
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -112,30 +96,52 @@ fun AddandViewExpenses() {
             ) {
                 item {
                     InputFieldWithDatePicker(label = "Date",
-                        selectedDate = selectedDate, // Pass selectedDate state
-                        onDateSelected = { newDate ->
-                            selectedDate = newDate
-                        } // Update selectedDate
+                        selectedDate = selectedDate,
+                        onDateSelected = { newDate -> selectedDate = newDate }
                     )
                 }
+
                 item {
                     InputField(
                         label = "Category",
-                        value = category,
+                        value = selectedCategory,
                         placeholder = "Select the category",
-                        onValueChange = { category = it },
+                        onValueChange = { selectedCategory = it },
                         trailingIcon = {
-                            IconButton(onClick = { /* Handle notifications */ }) {
+                            IconButton(onClick = { expanded = !expanded }) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_arrow_drop_down),
-                                    contentDescription = "Notifications",
-                                    tint = Color(0xFFFF8D3C),
+                                    contentDescription = "Dropdown",
+                                    tint = Color(0xFFFF8D3C)
                                 )
                             }
                         },
-                        isCompact = true // Make the background compact for Date and Category
+                        isCompact = true,
+                        readOnly = true
                     )
+
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier.background(Color(0xFFFFF4EC))
+                    ) {
+                        categories.forEach { category ->
+                            DropdownMenuItem(text = {
+                                Text(
+                                    category.name,
+                                    color = Color(0xFF093030)
+                                )
+                            },
+                                onClick = {
+                                    selectedCategory = category.name
+                                    expanded = false
+                                },
+                                modifier = Modifier.background(Color(0xFFFFF4EC))
+                            )
+                        }
+                    }
                 }
+
                 item {
                     com.example.savr.ui.screens.signup.InputField(label = "Amount",
                         value = amount,
@@ -156,7 +162,7 @@ fun AddandViewExpenses() {
                 }
                 item {
                     Button(
-                        onClick = { /* Handle Sign Up logic */ },
+                        onClick = { /* Handle Save logic */ },
                         modifier = Modifier
                             .padding(vertical = 20.dp, horizontal = 50.dp)
                             .fillMaxWidth()
@@ -171,10 +177,12 @@ fun AddandViewExpenses() {
                 }
             }
         }
-        BottomNavBar()
-
+        BottomNavBar(navController = navController, selectedRoute = "transactions")
     }
 }
+
+
+
 
 @Composable
 fun InputFieldWithDatePicker(
@@ -239,9 +247,9 @@ fun InputFieldWithDatePicker(
 }
 
 
-
 @Preview(showBackground = true)
 @Composable
 fun AddandViewExpensesPreview() {
-    AddandViewExpenses()
+    val navController = rememberNavController()// Create a NavController for preview
+    AddandViewExpenses(navController)
 }

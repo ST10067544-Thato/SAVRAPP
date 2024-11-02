@@ -24,13 +24,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.FilteredHomeResultRow
 
 @Composable
-fun CategoryFilter() {
+fun CategoryFilter(navController: NavController, category: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +63,7 @@ fun CategoryFilter() {
                     )
                 }
                 Text(
-                    text = "Groceries",
+                    text = category, // Display the selected category
                     color = Color.White,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
@@ -78,25 +80,30 @@ fun CategoryFilter() {
             }
         }
 
-        Box(modifier = Modifier.weight(1f)) { // Expanded Box for LazyColumn and Button
-            // Curved white layered page for categories
+        // White layered page with LazyColumn
+        Box(
+            modifier = Modifier
+                .fillMaxSize() // Fill the remaining space
+                .weight(1f)
+                .background(Color(0xFFFFFFFF), RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
+                .padding(top = 26.dp)
+        ) {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White, RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
-                    .padding(top = 26.dp)
+                    .fillMaxSize() // Fill the Box
+                    .padding(bottom = 70.dp) // Add bottom padding for BottomNavBar
             ) {
                 items(listOf("April", "March")) { month ->
-                    FilteredTransactions(month)
+                    FilteredTransactions(month, navController)
                 }
             }
         }
-        BottomNavBar() // Place the Bottom Navigation Bar here to keep it visible
+        BottomNavBar(navController = navController, selectedRoute = "categories") // Place the Bottom Navigation Bar here to keep it visible
     }
 }
 
 @Composable
-fun FilteredTransactions(month: String) {
+fun FilteredTransactions(month: String, navController: NavController) {
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -110,9 +117,9 @@ fun FilteredTransactions(month: String) {
         )
         // Display transactions for the given month vertically
         Column {
-            FilteredHomeResultRow()
-            FilteredHomeResultRow()
-            FilteredHomeResultRow()
+            FilteredHomeResultRow(navController)
+            FilteredHomeResultRow(navController)
+            FilteredHomeResultRow(navController)
         }
     }
 }
@@ -120,5 +127,6 @@ fun FilteredTransactions(month: String) {
 @Preview(showBackground = true)
 @Composable
 fun CategoryFilterPreview() {
-    CategoryFilter()
+    val navController = rememberNavController() // Create a NavController for preview
+    CategoryFilter(navController, category = "Groceries") // Pass a sample category
 }

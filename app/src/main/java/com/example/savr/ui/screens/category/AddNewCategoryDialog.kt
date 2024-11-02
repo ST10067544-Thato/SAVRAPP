@@ -13,12 +13,15 @@ import androidx.compose.ui.text.*
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
-fun AddNewCategory(onDismiss: () -> Unit) {
+fun AddNewCategory(onDismiss: () -> Unit, onSave: (String) -> Unit) {
     var categoryName by remember { mutableStateOf("") }
-    var isFocused by remember { mutableStateOf(false) } // State for focus
+    var isFocused by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -29,7 +32,7 @@ fun AddNewCategory(onDismiss: () -> Unit) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .align(Alignment.Center) // Center the dialog vertically and horizontally
+                .align(Alignment.Center)
                 .padding(horizontal = 45.dp)
         ) {
             Column(
@@ -43,7 +46,10 @@ fun AddNewCategory(onDismiss: () -> Unit) {
                     "New Category",
                     color = Color(0xFF0E3E3E),
                     fontSize = 20.sp,
-                    modifier = Modifier.padding(bottom = 14.dp, start = 95.dp)
+                    fontWeight = FontWeight.Bold, // Make title bold
+                    modifier = Modifier
+                        .padding(bottom = 14.dp)
+                        .align(Alignment.CenterHorizontally) // Center title
                 )
                 //placeholder
                 BasicTextField(value = categoryName, // Use categoryName state
@@ -66,9 +72,13 @@ fun AddNewCategory(onDismiss: () -> Unit) {
                         }
                         innerTextField()
                     })
+
                 //save button to create a new category
                 OutlinedButton(
-                    onClick = { /* Handle saving the new category here */ },
+                    onClick = {
+                        onSave(categoryName)
+                        onDismiss()
+                    },
                     border = BorderStroke(0.dp, Color.Transparent),
                     colors = ButtonDefaults.outlinedButtonColors(Color.Transparent),
                     contentPadding = PaddingValues(),
@@ -77,7 +87,7 @@ fun AddNewCategory(onDismiss: () -> Unit) {
                         .clip(shape = RoundedCornerShape(30.dp))
                         .fillMaxWidth()
                         .background(color = Color(0xFFFF8D3C), shape = RoundedCornerShape(30.dp))
-                ) {
+                )  {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(vertical = 17.dp)
@@ -85,9 +95,10 @@ fun AddNewCategory(onDismiss: () -> Unit) {
                         Text("Save", color = Color(0xFFFFFFFF), fontSize = 15.sp)
                     }
                 }
+
                 //cancel button
                 OutlinedButton(
-                    onClick = onDismiss, // Call onDismiss to close the dialog
+                    onClick = onDismiss,
                     border = BorderStroke(0.dp, Color.Transparent),
                     colors = ButtonDefaults.outlinedButtonColors(Color.Transparent),
                     contentPadding = PaddingValues(),

@@ -1,4 +1,4 @@
-package com.example.savr.ui.screens.settings.usersettings
+package com.example.savr.ui.screens.profile.usersettings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,11 +31,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.InputField
 
 @Composable
-fun DeleteAccount() {
+fun DeleteAccount(navController: NavController) {
     //input fields for Current Password. Add padding
     var currentpassword by remember { mutableStateOf("") }
     Column(
@@ -108,7 +110,7 @@ fun DeleteAccount() {
                         .padding(27.dp)
                 ) {
                     Text(
-                        text = "This action will permanently delete all of your data, and you will not be able to recover it. Please keep the following in mind before proceeding:\n\nAll your expenses, income and associated transactions will be eliminated.\n\nYou will not be able to access your account or any related information.\n\nThis action cannot be undone.",
+                        text = "This action will permanently delete all of your Data, and you will not be able to recover it. Please keep the following in mind before proceeding:\n\nAll your expenses, income and associated transactions will be eliminated.\n\nYou will not be able to access your account or any related information.\n\nThis action cannot be undone.",
                         color = Color(0xFF363130),
                         fontSize = 13.sp,
                         modifier = Modifier.width(264.dp)
@@ -159,5 +161,6 @@ fun DeleteAccount() {
 @Preview(showBackground = true)
 @Composable
 fun DeleteAccountPreview() {
-    DeleteAccount()
+    val navController = rememberNavController()// Create a NavController for preview
+    DeleteAccount(navController)
 }
