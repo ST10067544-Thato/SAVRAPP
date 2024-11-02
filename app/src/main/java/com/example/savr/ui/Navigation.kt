@@ -1,11 +1,19 @@
 package com.example.savr.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.savr.data.database.AppDatabase
+import com.example.savr.data.repository.CategoryRepository
 import com.example.savr.ui.screens.Home
 import com.example.savr.ui.screens.analysis.AnalysisCalendar
 import com.example.savr.ui.screens.category.Categories
@@ -22,38 +30,47 @@ import com.example.savr.ui.screens.profile.usersettings.NotificationSettings
 import com.example.savr.ui.screens.signup.SignUp
 import com.example.savr.ui.screens.transactions.AddandViewExpenses
 import com.example.savr.ui.screens.transactions.Transactions
+import com.example.savr.ui.viewmodels.HomeViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current // Get the context outside of remember
+
+    // Initialize the ViewModel using the context
+    val viewModel: HomeViewModel = remember {
+        val database = AppDatabase.getDatabase(context)
+        val repository = CategoryRepository(database)
+        HomeViewModel(repository)
+    }
+
     NavHost(navController = navController, startDestination = "home") {
         composable("launch_screen") { LaunchScreen(navController) }
         composable("launch_screen_2") { LaunchScreen2(navController) }
 
-        composable("login") { Login(navController) } // Add Login route
-        composable("signup") { SignUp(navController) } // Add SignUp route
-        composable("home") { Home(navController) } // Add the Home route
-        composable("analysis") { AnalysisCalendar(navController) } // Add Analysis route
-        composable("transactions") { Transactions(navController) } // Add Transactions route
-        composable("add_expense") { AddandViewExpenses(navController) } // Add AddandViewExpenses route
+        composable("login") { Login(navController) }
+        composable("signup") { SignUp(navController) }
+        composable("home") { Home(navController, viewModel) }
+        composable("analysis") { AnalysisCalendar(navController) }
+        composable("transactions") { Transactions(navController) }
+        composable("add_expense") { AddandViewExpenses(navController) }
 
-        composable("categories") { Categories(navController) } // Add Categories route
+        composable("categories") { Categories(navController) }
         composable(
-            route = "category_filter/{category}", // Define route with argument
+            route = "category_filter/{category}",
             arguments = listOf(navArgument("category") { type = NavType.StringType })
         ) { backStackEntry ->
             val category = backStackEntry.arguments?.getString("category") ?: ""
-            CategoryFilter(navController, category) // Pass category to CategoryFilter
+            CategoryFilter(navController, category)
         }
 
-        composable("profile") { Profile(navController) } // Add Profile route
-        composable("edit_profile") { EditProfile(navController) } // Add Edit Profile route
-        composable("security_settings") { Security(navController) } // Add Profile Security Settings route
-        composable("change_password") { ChangePassword(navController) } // Add Change Profile Password route
-        composable("notification_settings") { NotificationSettings(navController) } // Add Notification Settings route
-//        composable("language_settings") { LanguageSettings() } // Add Language Settings route
-        composable("delete_account") { DeleteAccount(navController) } // Add Delete Account route
-
-
+        composable("profile") { Profile(navController) }
+        composable("edit_profile") { EditProfile(navController) }
+        composable("security_settings") { Security(navController) }
+        composable("change_password") { ChangePassword(navController) }
+        composable("notification_settings") { NotificationSettings(navController) }
+        composable("delete_account") { DeleteAccount(navController) }
     }
 }
+

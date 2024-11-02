@@ -2,15 +2,11 @@ package com.example.savr.ui.screens.transactions
 
 import android.app.Application
 import android.icu.util.Calendar
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,12 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,26 +33,32 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
+import com.example.savr.data.database.model.Expense
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.InputField
 import com.example.savr.ui.logic.ScreenTopSection
 import com.example.savr.ui.shared.SharedViewModel
 import com.example.savr.ui.shared.SharedViewModelFactory
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddandViewExpenses(navController: NavController) {
     val context = LocalContext.current.applicationContext as Application
-    val viewModel: SharedViewModel = viewModel(factory = SharedViewModelFactory(context)) // Correctly instantiate the ViewModel
+    val viewModel: SharedViewModel = viewModel(factory = SharedViewModelFactory(context))
 
-    var category by remember { mutableStateOf("") }
+    // Get the coroutine scope for launching coroutines
+    val coroutineScope = rememberCoroutineScope()
+
     var amount by remember { mutableStateOf("") }
     var expenseTitle by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf("") }
+    var selectedCategoryId by remember { mutableStateOf(-1) }
 
     // Observe categoriesList for changes
     val categories by viewModel.categoriesList.collectAsState()
@@ -75,11 +72,11 @@ fun AddandViewExpenses(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp, bottom = 15.dp)
-                .padding(horizontal = 36.dp) // Horizontal padding for the content
+                .padding(horizontal = 36.dp)
         ) {
             ScreenTopSection(navController = navController,
                 title = "Add an Expense",
-                onBack = { navController.popBackStack() }) // Add this line
+                onBack = { navController.popBackStack() })
         }
 
         Box(
@@ -97,8 +94,7 @@ fun AddandViewExpenses(navController: NavController) {
                 item {
                     InputFieldWithDatePicker(label = "Date",
                         selectedDate = selectedDate,
-                        onDateSelected = { newDate -> selectedDate = newDate }
-                    )
+                        onDateSelected = { newDate -> selectedDate = newDate })
                 }
 
                 item {
@@ -134,6 +130,7 @@ fun AddandViewExpenses(navController: NavController) {
                             },
                                 onClick = {
                                     selectedCategory = category.name
+                                    selectedCategoryId = category.id // Set the selected category ID
                                     expanded = false
                                 },
                                 modifier = Modifier.background(Color(0xFFFFF4EC))
@@ -143,26 +140,40 @@ fun AddandViewExpenses(navController: NavController) {
                 }
 
                 item {
-                    com.example.savr.ui.screens.signup.InputField(label = "Amount",
+                    InputField(label = "Amount",
                         value = amount,
                         placeholder = "Please enter in an amount.",
                         onValueChange = { amount = it })
                 }
                 item {
-                    com.example.savr.ui.screens.signup.InputField(label = "Expense Title",
+                    InputField(label = "Expense Title",
                         value = expenseTitle,
                         placeholder = "Please enter a title.",
                         onValueChange = { expenseTitle = it })
                 }
                 item {
-                    com.example.savr.ui.screens.signup.InputField(label = "Description",
+                    InputField(label = "Description",
                         value = description,
                         placeholder = "Enter description.",
                         onValueChange = { description = it })
                 }
                 item {
                     Button(
-                        onClick = { /* Handle Save logic */ },
+                        onClick = {
+                            if (amount.isNotEmpty() && expenseTitle.isNotEmpty() && selectedCategoryId != -1) {
+                                val newExpense = Expense(
+                                    title = expenseTitle,
+                                    amount = amount.toDouble(),
+                                    date = selectedDate!!, // Non-null assertion since we checked for null
+                                    categoryId = selectedCategoryId
+                                )
+                                // Launch the coroutine to call the suspend function
+                                coroutineScope.launch {
+                                   // viewModel.addExpense(newExpense) // Call the suspend function within the coroutine
+                                    navController.popBackStack() // Navigate back after saving
+                                }
+                            }
+                        },
                         modifier = Modifier
                             .padding(vertical = 20.dp, horizontal = 50.dp)
                             .fillMaxWidth()
@@ -181,12 +192,10 @@ fun AddandViewExpenses(navController: NavController) {
     }
 }
 
-
-
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InputFieldWithDatePicker(
-    label: String, selectedDate: String, onDateSelected: (String) -> Unit
+    label: String, selectedDate: LocalDate?, onDateSelected: (LocalDate) -> Unit
 ) {
     val context = LocalContext.current
     var showDatePicker by remember { mutableStateOf(false) }
@@ -207,21 +216,17 @@ fun InputFieldWithDatePicker(
                 .padding(vertical = 10.dp, horizontal = 18.dp)
                 .clickable { showDatePicker = true } // Make the row clickable
         ) {
-            BasicTextField(value = selectedDate, // Display selected date
+            BasicTextField(
+                value = selectedDate?.toString() ?: "Please select a date", // Display selected date or placeholder
                 onValueChange = { /* Do nothing, date is set by date picker */ },
                 textStyle = TextStyle(color = Color(0xFF093030), fontSize = 16.sp),
                 modifier = Modifier.weight(1f),
                 readOnly = true, // Make the text field read-only
-                decorationBox = { innerTextField ->
-                    if (selectedDate.isEmpty()) {
-                        Text("Please select a date", color = Color.Gray)
-                    }
-                    innerTextField()
-                })
+            )
             IconButton(onClick = { showDatePicker = true }) { // Make icon clickable
                 Icon(
                     painter = painterResource(id = R.drawable.ic_calendar),
-                    contentDescription = "Notifications",
+                    contentDescription = "Calendar",
                     tint = Color(0xFFFF8D3C)
                 )
             }
@@ -237,8 +242,8 @@ fun InputFieldWithDatePicker(
 
         android.app.DatePickerDialog(
             context, { _, selectedYear, selectedMonth, selectedDay ->
-                val formattedDate = "$selectedDay/${selectedMonth + 1}/$selectedYear"
-                onDateSelected(formattedDate) // Update selectedDate state
+                val selectedLocalDate = LocalDate.of(selectedYear, selectedMonth + 1, selectedDay)
+                onDateSelected(selectedLocalDate) // Update selectedDate state
             }, year, month, day
         ).show()
 
@@ -247,9 +252,15 @@ fun InputFieldWithDatePicker(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun AddandViewExpensesPreview() {
-    val navController = rememberNavController()// Create a NavController for preview
-    AddandViewExpenses(navController)
+    val navController = rememberNavController() // Create a NavController for preview
+
+    // Set a sample date for preview purposes
+    val sampleDate = LocalDate.now()
+
+    AddandViewExpenses(navController = navController)
 }
+

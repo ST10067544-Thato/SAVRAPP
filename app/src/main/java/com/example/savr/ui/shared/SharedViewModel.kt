@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.savr.R
 import com.example.savr.data.database.AppDatabase
 import com.example.savr.data.database.model.Category
+import com.example.savr.data.database.model.Expense
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -16,6 +18,9 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     private val categoryDao = AppDatabase.getDatabase(application).categoryDao()
     private val _categoriesList = MutableStateFlow<List<Category>>(emptyList())
     val categoriesList = _categoriesList.asStateFlow()
+
+    private val expenseDao = AppDatabase.getDatabase(application).expenseDao()
+    val expensesList: Flow<List<Expense>> = expenseDao.getAllExpenses()
 
     init {
         viewModelScope.launch {
@@ -49,6 +54,10 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             categoryDao.insertCategory(Category(name = categoryName, iconRes = iconRes))
         }
     }
+
+//    suspend fun addExpense(expense: Expense) {
+//        expenseDao.insertExpense(expense)
+//    }
 }
 
 class SharedViewModelFactory(

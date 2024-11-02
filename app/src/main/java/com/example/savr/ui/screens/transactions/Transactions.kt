@@ -18,8 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,8 +36,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.BottomNavBar
-import com.example.savr.ui.logic.CustomNotificationBar
-import com.example.savr.ui.logic.FilteredHomeResultRow
 import com.example.savr.ui.logic.ScreenTopSection
 
 @Composable
@@ -56,7 +52,10 @@ fun Transactions(navController: NavController) {
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            ScreenTopSection(navController = navController, title = "Transactions", onBack = { navController.popBackStack() }) // Add this line
+            ScreenTopSection(
+                navController = navController,
+                title = "Transactions",
+                onBack = { navController.popBackStack() }) // Add this line
         }
 
         Column(
@@ -153,7 +152,10 @@ fun Transactions(navController: NavController) {
                 }
             }
         }
-        BottomNavBar(navController = navController, selectedRoute = "transactions") // Place the Bottom Navigation Bar here to keep it visible
+        BottomNavBar(
+            navController = navController,
+            selectedRoute = "transactions"
+        ) // Place the Bottom Navigation Bar here to keep it visible
     }
 }
 
@@ -172,9 +174,9 @@ fun TransactionSection(month: String, navController: NavController) {
         )
         // Display transactions for the given month vertically
         Column {
-            FilteredHomeResultRow(navController)
-            FilteredHomeResultRow(navController)
-            FilteredHomeResultRow(navController)
+//            FilteredHomeResultRow(navController)
+//            FilteredHomeResultRow(navController)
+//            FilteredHomeResultRow(navController)
         }
     }
 }

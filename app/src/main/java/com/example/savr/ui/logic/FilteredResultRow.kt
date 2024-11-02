@@ -26,109 +26,111 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.savr.R
+import com.example.savr.data.database.model.Category
+import com.example.savr.data.database.model.Expense
+//
+//@Composable
+//fun FilteredResultRow(selectedDate: String) {
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp)
+//            .clip(RoundedCornerShape(20.dp))
+//            .background(Color(0xFFFFF4EC))
+//            .padding(16.dp),
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Row(verticalAlignment = Alignment.CenterVertically) {
+//            // Icon with blue background
+//            Box(
+//                modifier = Modifier
+//                    .clip(RoundedCornerShape(12.dp)) // Adjust corner radius as needed
+//                    .background(Color(0xFF6CB5FD))
+//                    .padding(8.dp) // Adjust padding as needed
+//            ) {
+//                Image(
+//                    painter = painterResource(id = R.drawable.groceries),
+//                    contentDescription = "Transaction Icon",
+//                    modifier = Modifier.size(24.dp) // Adjust size as needed
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(16.dp)) // Add spacing between icon and text
+//
+//            Column {
+//                Text(
+//                    text = "Groceries",
+//                    color = Color(0xFF052224),
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.Medium
+//                )
+//                Text(
+//                    text = "24 April 17:00",
+//                    color = Color(0xFF808080),
+//                    fontSize = 12.sp
+//                )
+//            }
+//        }
+//        Text(
+//            text = "-R100.00",
+//            color = Color(0xFF0068FF),
+//            fontSize = 16.sp,
+//            fontWeight = FontWeight.Medium
+//        )
+//    }
+//}
 
-@Composable
-fun FilteredResultRow(selectedDate: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFFFFF4EC))
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // Icon with blue background
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp)) // Adjust corner radius as needed
-                    .background(Color(0xFF6CB5FD))
-                    .padding(8.dp) // Adjust padding as needed
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.groceries),
-                    contentDescription = "Transaction Icon",
-                    modifier = Modifier.size(24.dp) // Adjust size as needed
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp)) // Add spacing between icon and text
-
-            Column {
-                Text(
-                    text = "Groceries",
-                    color = Color(0xFF052224),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "24 April 17:00",
-                    color = Color(0xFF808080),
-                    fontSize = 12.sp
-                )
-            }
-        }
-        Text(
-            text = "-R100.00",
-            color = Color(0xFF0068FF),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
-
-//Filtered results with nothing passed in it for home screen
-@Composable
-fun FilteredHomeResultRow(navController: NavController) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFFFFF4EC))
-            .padding(16.dp)
-            .clickable { navController.navigate("add_expense") }, // Make clickable
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // Icon with blue background
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp)) // Adjust corner radius as needed
-                    .background(Color(0xFF6CB5FD))
-                    .padding(8.dp) // Adjust padding as needed
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.groceries),
-                    contentDescription = "Transaction Icon",
-                    modifier = Modifier.size(24.dp) // Adjust size as needed
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp)) // Add spacing between icon and text
-
-            Column {
-                Text(
-                    text = "Groceries",
-                    color = Color(0xFF052224),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "24 April 17:00",
-                    color = Color(0xFF808080),
-                    fontSize = 12.sp
-                )
-            }
-        }
-        Text(
-            text = "-R100.00",
-            color = Color(0xFF0068FF),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
+////Filtered results with nothing passed in it for home screen
+//@Composable
+//fun FilteredHomeResultRow(navController: NavController, expense: Expense, category: Category?) {
+//    Row(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(16.dp)
+//            .clip(RoundedCornerShape(20.dp))
+//            .background(Color(0xFFFFF4EC))
+//            .padding(16.dp)
+//            .clickable { navController.navigate("add_expense") }, // Make clickable
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Row(verticalAlignment = Alignment.CenterVertically) {
+//            // Use the category icon if available
+//            Box(
+//                modifier = Modifier
+//                    .clip(RoundedCornerShape(12.dp)) // Adjust corner radius as needed
+//                    .background(Color(0xFF6CB5FD))
+//                    .padding(8.dp) // Adjust padding as needed
+//            ) {
+//                Image(
+//                    painter = painterResource(id = category?.iconRes ?: R.drawable.fire_emoji), // Default icon
+//                    contentDescription = "Transaction Icon",
+//                    modifier = Modifier.size(24.dp) // Adjust size as needed
+//                )
+//            }
+//
+//            Spacer(modifier = Modifier.width(16.dp)) // Add spacing between icon and text
+//
+//            Column {
+//                Text(
+//                    text = expense.title,
+//                    color = Color(0xFF052224),
+//                    fontSize = 16.sp,
+//                    fontWeight = FontWeight.Medium
+//                )
+//                Text(
+//                    text = expense.date,
+//                    color = Color(0xFF808080),
+//                    fontSize = 12.sp
+//                )
+//            }
+//        }
+//        Text(
+//            text = "-R${expense.amount}",
+//            color = Color(0xFF0068FF),
+//            fontSize = 16.sp,
+//            fontWeight = FontWeight.Medium
+//        )
+//    }
+//}

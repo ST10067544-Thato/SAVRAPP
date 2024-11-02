@@ -1,5 +1,7 @@
 package com.example.savr.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,14 +23,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,14 +37,31 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
+import com.example.savr.data.database.AppDatabase
+import com.example.savr.data.repository.CategoryRepository
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.logic.DisplayExpense
 import com.example.savr.ui.logic.FilterButton
 import com.example.savr.ui.logic.FilterType
-import com.example.savr.ui.logic.FilteredHomeResultRow
+import com.example.savr.ui.viewmodels.HomeViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Home(navController: NavController) {
+fun Home(navController: NavController, viewModel: HomeViewModel) {
+    val expenses by viewModel.expenses.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+    val selectedFilter by viewModel.selectedFilter.collectAsState()
+
+    // Filter expenses based on selectedFilter
+    val filteredExpenses = when (selectedFilter) {
+        FilterType.DAILY -> viewModel.getExpensesForToday()
+        FilterType.WEEKLY -> viewModel.getExpensesForWeek()
+        FilterType.MONTHLY -> viewModel.getExpensesForMonth()
+        FilterType.SPENDS -> TODO()
+        FilterType.CATEGORIES -> TODO()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -237,8 +255,7 @@ fun Home(navController: NavController) {
                     "30% of your goal acheived, looks good!",
                     color = Color(0xFFFFFFFF),
                     fontSize = 14.sp,
-                    modifier = Modifier
-                        .padding(start = 6.dp)
+                    modifier = Modifier.padding(start = 6.dp)
                 )
             }
         }
@@ -251,7 +268,7 @@ fun Home(navController: NavController) {
                 .background(
                     Color.White, shape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)
                 )
-                .verticalScroll(rememberScrollState())
+                //.verticalScroll(rememberScrollState())
         ) {
             Column( // Wrap content in a Column
                 modifier = Modifier
@@ -356,7 +373,6 @@ fun Home(navController: NavController) {
                     }
                 }
 
-                var selectedFilter by remember { mutableStateOf(FilterType.DAILY) } // State to track selected filter
 
                 //Recent transactions section which will display recent transactions filtered based
                 // on the period the user chooses from the button: "Daily", "Weekly" or "Monthly"
@@ -372,27 +388,40 @@ fun Home(navController: NavController) {
                 ) {
                     FilterButton(text = "Daily",
                         isSelected = selectedFilter == FilterType.DAILY,
-                        onClick = { selectedFilter = FilterType.DAILY })
+                        onClick = { viewModel.updateFilter(FilterType.DAILY) })
 
                     FilterButton(text = "Weekly",
                         isSelected = selectedFilter == FilterType.WEEKLY,
-                        onClick = { selectedFilter = FilterType.WEEKLY })
+                        onClick = { viewModel.updateFilter(FilterType.WEEKLY) })
 
                     FilterButton(text = "Monthly",
                         isSelected = selectedFilter == FilterType.MONTHLY,
-                        onClick = { selectedFilter = FilterType.MONTHLY })
+                        onClick = { viewModel.updateFilter(FilterType.MONTHLY) })
                 }
-                FilteredHomeResultRow(navController) // Display the Conditional content based on selected filter
+                // Display the Conditional content based on selected filter button
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()) // Add this line
+                ) {
+                    for (expense in filteredExpenses) { // Use filteredExpenses here
+                        val category = categories.find { it.id == expense.categoryId }
+                        DisplayExpense(navController, expense, category)
+                    }
+                }
             }
         }
         BottomNavBar(navController = navController, selectedRoute = "home")
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true)
 @Composable
 fun HomePreview() {
-    val navController = rememberNavController()// Create a NavController for preview
-    Home(navController)
+    val navController = rememberNavController()
+    val viewModel =
+        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
+    Home(navController, viewModel)
 }
 

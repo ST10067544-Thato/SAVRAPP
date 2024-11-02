@@ -39,7 +39,6 @@ import com.example.savr.ui.logic.CategoryPieChart
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.FilterButton
 import com.example.savr.ui.logic.FilterType
-import com.example.savr.ui.logic.FilteredHomeResultRow
 import com.example.savr.ui.logic.ScreenTopSection
 
 @Composable
@@ -222,7 +221,7 @@ fun AnalysisCalendar(navController: NavController) {
 
                 // Conditional content based on selected filter
                 if (selectedFilter == FilterType.SPENDS) {
-                    FilteredHomeResultRow(navController) // Pass selected date to FilteredResultRow
+                    //FilteredHomeResultRow(navController) // Pass selected date to FilteredResultRow
                 } else {
                     CategoryPieChart(selectedDate) // Pass selectedDate to PieChart
                 }
