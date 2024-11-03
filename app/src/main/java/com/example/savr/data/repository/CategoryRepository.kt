@@ -32,6 +32,18 @@ class CategoryRepository(private val database: AppDatabase) {
         return database.categoryDao().getAllCategories()
     }
 
+    suspend fun insertExpense(expense: Expense) {
+        database.expenseDao().insertExpense(expense)
+    }
+
+    suspend fun updateExpense(expense: Expense) {
+        database.expenseDao().updateExpense(expense)
+    }
+
+    suspend fun getExpenseById(expenseId: Int): Expense {
+        return database.expenseDao().getExpenseById(expenseId)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun insertDummyTransactions() {
         val currentDate = LocalDate.now()

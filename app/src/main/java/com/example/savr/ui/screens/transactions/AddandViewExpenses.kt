@@ -33,7 +33,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
+import com.example.savr.data.database.AppDatabase
 import com.example.savr.data.database.model.Expense
+import com.example.savr.data.repository.ExpenseRepository
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.InputField
 import com.example.savr.ui.logic.ScreenTopSection
@@ -47,7 +49,8 @@ import java.time.LocalDate
 @Composable
 fun AddandViewExpenses(navController: NavController) {
     val context = LocalContext.current.applicationContext as Application
-    val viewModel: SharedViewModel = viewModel(factory = SharedViewModelFactory(context))
+    val viewModel: SharedViewModel = viewModel(factory = SharedViewModelFactory(context, ExpenseRepository(
+        AppDatabase.getDatabase(context).expenseDao())))
 
     // Get the coroutine scope for launching coroutines
     val coroutineScope = rememberCoroutineScope()
@@ -169,7 +172,7 @@ fun AddandViewExpenses(navController: NavController) {
                                 )
                                 // Launch the coroutine to call the suspend function
                                 coroutineScope.launch {
-                                   // viewModel.addExpense(newExpense) // Call the suspend function within the coroutine
+                                    viewModel.addExpense(newExpense) // Call addExpense from SharedViewModel
                                     navController.popBackStack() // Navigate back after saving
                                 }
                             }

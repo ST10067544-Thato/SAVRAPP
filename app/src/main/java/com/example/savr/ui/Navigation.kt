@@ -52,8 +52,8 @@ fun Navigation() {
         composable("login") { Login(navController) }
         composable("signup") { SignUp(navController) }
         composable("home") { Home(navController, viewModel) }
-        composable("analysis") { AnalysisCalendar(navController) }
-        composable("transactions") { Transactions(navController) }
+        composable("analysis") { AnalysisCalendar(navController, viewModel) }
+        composable("transactions") { Transactions(navController, viewModel) }
         composable("add_expense") { AddandViewExpenses(navController) }
 
         composable("categories") { Categories(navController) }
@@ -62,7 +62,7 @@ fun Navigation() {
             arguments = listOf(navArgument("category") { type = NavType.StringType })
         ) { backStackEntry ->
             val category = backStackEntry.arguments?.getString("category") ?: ""
-            CategoryFilter(navController, category)
+            CategoryFilter(navController, category, viewModel)
         }
 
         composable("profile") { Profile(navController) }

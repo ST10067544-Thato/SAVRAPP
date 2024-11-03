@@ -22,16 +22,25 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.text.color
+import com.example.savr.data.database.model.Category
+import com.example.savr.data.database.model.Expense
+import java.time.LocalDate
 
 @Composable
-fun CategoryPieChart(selectedDate: String) {
-    // Dummy Data for visualization
-    val categoryData = mapOf(
-        "Grocery" to 8, // 8 spends in Grocery category
-        "Car" to 2 // 2 spends in Car category
-    )
+fun CategoryPieChart(selectedDate: LocalDate, expenses: List<Expense>, categories: List<Category>) {
+    // Filter expenses by selected date
+    val filteredExpenses = expenses.filter { it.date == selectedDate }
 
-    val colors = listOf(Color(0xFF3299FF), Color(0xFF6CB5FD)) // Blue color shades
+    // Group expenses by category and calculate total spends for each category
+    val categoryData = filteredExpenses.groupBy { it.categoryId }
+        .mapValues { (_, expenses) -> expenses.sumOf { it.amount } }
+
+    // Get category names and colors
+    val categoryNames = categoryData.keys.map { categoryId ->
+        categories.find { it.id == categoryId }?.name ?: "Unknown"
+    }
+    val colors = listOf(Color(0xFF3299FF), Color(0xFF6CB5FD), Color(0xFF0068FF), Color(0xFF093030)) // Add more colors if needed
 
     // Using Column to stack pie chart and legend directly
     Column(
@@ -52,12 +61,13 @@ fun CategoryPieChart(selectedDate: String) {
             var startAngle = 0f // Start from 0 for a full circle
             val totalSpends = categoryData.values.sum()
 
-            categoryData.forEach { (category, spends) ->
+            categoryData.forEach { (categoryId, spends) ->
                 val sweepAngle = (spends.toFloat() / totalSpends) * 360f // Full circle
+                val categoryIndex = categoryData.keys.indexOf(categoryId)
                 drawArc(
-                    color = colors[categoryData.keys.indexOf(category) % colors.size],
+                    color = colors[categoryIndex % colors.size],
                     startAngle = startAngle,
-                    sweepAngle = sweepAngle,
+                    sweepAngle = sweepAngle.toFloat(),
                     useCenter = true, // Optionally fill the center if you want a solid look
                 )
 
@@ -80,7 +90,7 @@ fun CategoryPieChart(selectedDate: String) {
                         textAlign = android.graphics.Paint.Align.CENTER
                     })
 
-                startAngle += sweepAngle
+                startAngle += sweepAngle.toFloat()
             }
         }
 
@@ -91,10 +101,9 @@ fun CategoryPieChart(selectedDate: String) {
                 .padding(top = 8.dp), // Adjust spacing as needed
             horizontalArrangement = Arrangement.Center // Center items in the row
         ) {
-            val legendItems = categoryData.entries.toList()
-            for (i in legendItems.indices) {
-                LegendItem(legendItems[i].key, colors[i % colors.size])
-                if (i % 2 == 0 && i + 1 < legendItems.size) { // Add spacer after every 2 items
+            for (i in categoryNames.indices) {
+                LegendItem(categoryNames[i], colors[i % colors.size])
+                if (i % 2 == 0 && i + 1 < categoryNames.size) { // Add spacer after every 2 items
                     Spacer(modifier = Modifier.width(16.dp))
                 }
             }

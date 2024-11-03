@@ -1,5 +1,6 @@
 package com.example.savr.ui.screens.analysis
 
+import android.annotation.SuppressLint
 import android.icu.util.Calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,16 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,27 +30,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.savr.data.database.AppDatabase
+import com.example.savr.data.repository.CategoryRepository
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CategoryPieChart
-import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.logic.DisplayExpense
+import com.example.savr.ui.logic.EmptyState
 import com.example.savr.ui.logic.FilterButton
 import com.example.savr.ui.logic.FilterType
 import com.example.savr.ui.logic.ScreenTopSection
+import com.example.savr.ui.viewmodels.HomeViewModel
+import java.time.LocalDate
 
+@SuppressLint("NewApi")
 @Composable
-fun AnalysisCalendar(navController: NavController) {
-    val currentDate = Calendar.getInstance()
-    var selectedFilter by remember { mutableStateOf(FilterType.SPENDS) }
-    var selectedDate by remember { mutableStateOf(currentDate.get(Calendar.DAY_OF_MONTH).toString()) }
+fun AnalysisCalendar(navController: NavController, viewModel: HomeViewModel) {
+    val expenses by viewModel.expenses.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+
+    val currentDate = LocalDate.now()
+    var selectedFilter by remember { mutableStateOf(FilterType.SPENDS) } // Spends button clicked by default
+    var selectedDate by remember { mutableStateOf(currentDate) }
 
     // State for month and year selection, initialized with current date
-    var selectedMonth by remember { mutableStateOf(currentDate.get(Calendar.MONTH) + 1) }
-    var selectedYear by remember { mutableStateOf(currentDate.get(Calendar.YEAR)) }
+    var selectedMonth by remember { mutableStateOf(currentDate.monthValue) }
+    var selectedYear by remember { mutableStateOf(currentDate.year) }
 
     Column(
         modifier = Modifier
@@ -63,7 +74,9 @@ fun AnalysisCalendar(navController: NavController) {
                 .padding(top = 10.dp, bottom = 20.dp)
                 .padding(horizontal = 36.dp)
         ) {
-            ScreenTopSection(navController = navController, title = "Calendar Overview", onBack = { navController.popBackStack() }) // Add this line
+            ScreenTopSection(navController = navController,
+                title = "Calendar Overview",
+                onBack = { navController.popBackStack() }) // Add this line
         }
 
         // Curved white layered page for Calendar
@@ -74,7 +87,6 @@ fun AnalysisCalendar(navController: NavController) {
                 .background(
                     Color.White, shape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)
                 )
-                .verticalScroll(rememberScrollState())
         ) {
             Column(
                 modifier = Modifier
@@ -152,13 +164,7 @@ fun AnalysisCalendar(navController: NavController) {
                 }
 
                 // Dates for a typical month with fixed box width for alignment
-                val daysInMonth = listOf(
-                    listOf("", "", "1", "2", "3", "4", "5"),
-                    listOf("6", "7", "8", "9", "10", "11", "12"),
-                    listOf("13", "14", "15", "16", "17", "18", "19"),
-                    listOf("20", "21", "22", "23", "24", "25", "26"),
-                    listOf("27", "28", "29", "30", "", "", "")
-                )
+                val daysInMonth = getDaysInMonth(selectedYear, selectedMonth)
                 daysInMonth.forEach { week ->
                     Row(
                         horizontalArrangement = Arrangement.SpaceAround, // Use SpaceAround for even distribution
@@ -172,18 +178,26 @@ fun AnalysisCalendar(navController: NavController) {
                                 modifier = Modifier
                                     .size(40.dp) // Fixed size for consistent column alignment
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(if (day == selectedDate) Color(0xFFFF8D3C) else Color.White)
+                                    .background(
+                                        if (day == selectedDate.dayOfMonth.toString()) Color(
+                                            0xFFFF8D3C
+                                        ) else Color.White
+                                    )
                             ) {
                                 TextButton(
                                     onClick = {
-                                        selectedDate = day // Update selected date
+                                        selectedDate = LocalDate.of(
+                                            selectedYear,
+                                            selectedMonth,
+                                            day.toIntOrNull() ?: 1
+                                        ) // Update selected date
                                     }, colors = ButtonDefaults.textButtonColors(
                                         Color.Transparent // No background color for button
                                     )
                                 ) {
                                     Text(
                                         text = day,
-                                        color = if (day == selectedDate) Color.White else Color(
+                                        color = if (day == selectedDate.dayOfMonth.toString()) Color.White else Color(
                                             0xFF052224
                                         ),
                                         fontSize = 12.5.sp
@@ -221,15 +235,75 @@ fun AnalysisCalendar(navController: NavController) {
 
                 // Conditional content based on selected filter
                 if (selectedFilter == FilterType.SPENDS) {
-                    //FilteredHomeResultRow(navController) // Pass selected date to FilteredResultRow
+                    val filteredExpenses = expenses.filter { it.date == selectedDate }
+                    if (filteredExpenses.isEmpty()) {
+                        EmptyState(message = "No transactions available")
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 70.dp)
+                        ) {
+                            items(filteredExpenses) { expense ->
+                                val category = categories.find { it.id == expense.categoryId }
+                                DisplayExpense(navController, expense, category)
+                            }
+                        }
+                    }
                 } else {
-                    CategoryPieChart(selectedDate) // Pass selectedDate to PieChart
+                    val categoryData =
+                        expenses.filter { it.date == selectedDate }.groupBy { it.categoryId }
+                            .mapValues { (_, expenses) -> expenses.sumOf { it.amount } }
+                    if (categoryData.isEmpty()) {
+                        EmptyState(message = "No data available for this date")
+                    } else {
+                        CategoryPieChart(
+                            selectedDate,
+                            expenses,
+                            categories
+                        )// Pass selectedDate to PieChart
+                    }
                 }
             }
         }
         // Bottom navigation
         BottomNavBar(navController = navController, selectedRoute = "analysis")
     }
+}
+
+private fun getDaysInMonth(year: Int, month: Int): List<List<String>> {
+    val calendar = Calendar.getInstance().apply {
+        set(year, month - 1, 1) // Set to the first day of the month
+    }
+    val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+    val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1 // Adjust to 0-based index
+
+    val daysList = mutableListOf<List<String>>()
+    val currentWeek = mutableListOf<String>()
+
+    // Add empty cells for days before the first day of the month
+    for (i in 0 until firstDayOfWeek) {
+        currentWeek.add("")
+    }
+
+    // Add days of the month
+    for (day in 1..daysInMonth) {
+        currentWeek.add(day.toString())
+        if (currentWeek.size == 7) {
+            daysList.add(currentWeek.toList())
+            currentWeek.clear()
+        }
+    }
+
+    // Add empty cells for days after the last day of the month
+    if (currentWeek.isNotEmpty()) {
+        while (currentWeek.size < 7) {
+            currentWeek.add("")
+        }
+        daysList.add(currentWeek.toList())
+    }
+
+    return daysList
 }
 
 private fun getMonthName(month: Int): String {
@@ -253,8 +327,10 @@ private fun getMonthName(month: Int): String {
 @Preview(showBackground = true)
 @Composable
 fun AnalysisCalendarPreview() {
-    val navController = rememberNavController()// Create a NavController for preview
-    AnalysisCalendar(navController)
+    val navController = rememberNavController()
+    val viewModel =
+        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
+    AnalysisCalendar(navController, viewModel)
 }
 
 

@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.example.savr.data.database.model.Expense
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -17,13 +16,13 @@ class AppDatabaseCallback : RoomDatabase.Callback() {
         db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Fuel', 80.50, '$currentDate', 2)")
         db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Restaurant', 200.00, '$currentDate', 3)")
 
-        insertDummyData(db) // Call the function to insert dummy data
+        //insertDummyData(db) // Call the function to insert dummy data
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onOpen(db: SupportSQLiteDatabase) {
         super.onOpen(db)
-        insertDummyData(db) // Call the function to insert dummy data
+        //insertDummyData(db) // Call the function to insert dummy data
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -39,15 +38,75 @@ class AppDatabaseCallback : RoomDatabase.Callback() {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
         // Insert 10 imaginary data entries
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Coffee', 35.00, '${today.format(formatter)}', 1)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Movie Ticket', 120.00, '${yesterday.format(formatter)}', 3)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Train ticket', 60.00, '${twoDaysAgo.format(formatter)}', 2)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Book', 85.50, '${threeDaysAgo.format(formatter)}', 4)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Snacks', 45.00, '${fourDaysAgo.format(formatter)}', 1)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Data', 150.00, '${fiveDaysAgo.format(formatter)}', 5)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Gifts', 250.00, '${sixDaysAgo.format(formatter)}', 6)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Lunch', 75.00, '${today.format(formatter)}', 3)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Uber', 100.00, '${yesterday.format(formatter)}', 2)")
-        db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Clothes', 300.00, '${threeDaysAgo.format(formatter)}', 7)")
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Coffee', 35.00, '${
+                today.format(
+                    formatter
+                )
+            }', 1)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Movie Ticket', 120.00, '${
+                yesterday.format(
+                    formatter
+                )
+            }', 3)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Train ticket', 60.00, '${
+                twoDaysAgo.format(
+                    formatter
+                )
+            }', 2)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Book', 85.50, '${
+                threeDaysAgo.format(
+                    formatter
+                )
+            }', 4)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Snacks', 45.00, '${
+                fourDaysAgo.format(
+                    formatter
+                )
+            }', 1)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Data', 150.00, '${
+                fiveDaysAgo.format(
+                    formatter
+                )
+            }', 5)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Gifts', 250.00, '${
+                sixDaysAgo.format(
+                    formatter
+                )
+            }', 6)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Lunch', 75.00, '${
+                today.format(
+                    formatter
+                )
+            }', 3)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Uber', 100.00, '${
+                yesterday.format(
+                    formatter
+                )
+            }', 2)"
+        )
+        db.execSQL(
+            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Clothes', 300.00, '${
+                threeDaysAgo.format(
+                    formatter
+                )
+            }', 7)"
+        )
     }
 }

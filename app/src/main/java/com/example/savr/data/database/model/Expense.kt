@@ -11,5 +11,5 @@ data class Expense(
     val amount: Double,
     val date: LocalDate,
     val categoryId: Int,
-    val newColumn: String? = null // Add new column here
+    val description: String? = null // Add description property here
 )

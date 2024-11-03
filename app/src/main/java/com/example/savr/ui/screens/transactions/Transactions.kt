@@ -1,5 +1,6 @@
 package com.example.savr.ui.screens.transactions
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -15,17 +16,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,11 +38,26 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
+import com.example.savr.data.database.AppDatabase
+import com.example.savr.data.database.model.Category
+import com.example.savr.data.database.model.Expense
+import com.example.savr.data.repository.CategoryRepository
 import com.example.savr.ui.logic.BottomNavBar
+import com.example.savr.ui.logic.DisplayExpense
+import com.example.savr.ui.logic.EmptyState
 import com.example.savr.ui.logic.ScreenTopSection
+import com.example.savr.ui.viewmodels.HomeViewModel
 
+@SuppressLint("NewApi")
 @Composable
-fun Transactions(navController: NavController) {
+fun Transactions(navController: NavController, viewModel: HomeViewModel) {
+    val expenses by viewModel.expenses.collectAsState()
+    val categories by viewModel.categories.collectAsState()
+
+    // Group expenses by month
+    val expensesByMonth = expenses.groupBy { it.date.month }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -52,8 +70,7 @@ fun Transactions(navController: NavController) {
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            ScreenTopSection(
-                navController = navController,
+            ScreenTopSection(navController = navController,
                 title = "Transactions",
                 onBack = { navController.popBackStack() }) // Add this line
         }
@@ -113,12 +130,25 @@ fun Transactions(navController: NavController) {
             // Curved white layered page for categories
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize() // Make it fill the entire screen
                     .background(Color.White, RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp))
                     .padding(top = 26.dp)
             ) {
-                items(listOf("April", "March")) { month ->
-                    TransactionSection(month, navController)
+                if (expenses.isEmpty()) {
+                    item {
+                        EmptyState(message = "No transactions have been logged yet")
+                    }
+                } else {
+                    expensesByMonth.forEach { (month, expensesForMonth) ->
+                        item {
+                            TransactionSection(
+                                month.toString(),
+                                expensesForMonth,
+                                categories,
+                                navController
+                            )
+                        }
+                    }
                 }
             }
 
@@ -147,24 +177,28 @@ fun Transactions(navController: NavController) {
                         )
                 ) {
                     Text(
-                        "+ Add Expense", color = Color.White, fontSize = 15.sp
+                        "+ Add Transaction", color = Color.White, fontSize = 15.sp
                     )
                 }
             }
         }
         BottomNavBar(
-            navController = navController,
-            selectedRoute = "transactions"
+            navController = navController, selectedRoute = "transactions"
         ) // Place the Bottom Navigation Bar here to keep it visible
     }
 }
 
 @Composable
-fun TransactionSection(month: String, navController: NavController) {
+fun TransactionSection(
+    month: String,
+    expenses: List<Expense>,
+    categories: List<Category>,
+    navController: NavController
+) {
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp) // Add bottom padding to create space between sections
+            .padding(bottom = 16.dp)
     ) {
         Text(
             text = month,
@@ -172,11 +206,17 @@ fun TransactionSection(month: String, navController: NavController) {
             fontSize = 15.sp,
             modifier = Modifier.padding(start = 36.dp, bottom = 8.dp)
         )
+
         // Display transactions for the given month vertically
         Column {
-//            FilteredHomeResultRow(navController)
-//            FilteredHomeResultRow(navController)
-//            FilteredHomeResultRow(navController)
+            expenses.forEach { expense ->
+                val category = categories.find { it.id == expense.categoryId }
+                DisplayExpense(
+                    navController,
+                    expense,
+                    category
+                ) // Assuming you have a DisplayExpense composable
+            }
         }
     }
 }
@@ -224,6 +264,8 @@ fun IncomeExpenseCard(
 @Preview(showBackground = true)
 @Composable
 fun TransactionsPreview() {
-    val navController = rememberNavController()// Create a NavController for preview
-    Transactions(navController)
+    val navController = rememberNavController()
+    val viewModel =
+        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
+    Transactions(navController, viewModel)
 }

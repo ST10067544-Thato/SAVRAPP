@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.savr.data.database.model.Expense
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -22,6 +23,14 @@ interface ExpenseDao {
     @Query("SELECT * FROM expenses WHERE date BETWEEN :startDate AND :endDate")
     fun getExpensesByDateRange(startDate: LocalDate, endDate: LocalDate): Flow<List<Expense>>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertExpense(expense: Expense)
+
+    @Update
+    suspend fun updateExpense(expense: Expense)
+
+    @Query("SELECT * FROM expenses WHERE id = :expenseId")
+    suspend fun getExpenseById(expenseId: Int): Expense
 
     // Add more queries as needed (e.g., filtering by date or category)
 }

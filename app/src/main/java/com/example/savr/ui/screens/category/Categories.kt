@@ -40,7 +40,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
+import com.example.savr.data.database.AppDatabase
 import com.example.savr.data.database.model.Category
+import com.example.savr.data.repository.ExpenseRepository
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.ScreenTopSection
 import com.example.savr.ui.shared.SharedViewModel
@@ -49,7 +51,8 @@ import com.example.savr.ui.shared.SharedViewModelFactory
 @Composable
 fun Categories(navController: NavController) {
     val context = LocalContext.current.applicationContext as Application
-    val viewModel: SharedViewModel = viewModel(factory = SharedViewModelFactory(context)) // Correctly instantiate the ViewModel
+    val viewModel: SharedViewModel = viewModel(factory = SharedViewModelFactory(context, ExpenseRepository(
+        AppDatabase.getDatabase(context).expenseDao())))// Correctly instantiate the ViewModel
 
     val categories by viewModel.categoriesList.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -79,7 +82,8 @@ fun Categories(navController: NavController) {
                 .padding(top = 40.dp)
         ) {
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                val categoriesWithAddNew = categories + listOf(Category(name = "Add New", iconRes = R.drawable.more))
+                val categoriesWithAddNew =
+                    categories + listOf(Category(name = "Add New", iconRes = R.drawable.more))
                 val chunkedCategories = categoriesWithAddNew.chunked(3)
 
                 for (rowCategories in chunkedCategories) {

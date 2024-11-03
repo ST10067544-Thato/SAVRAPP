@@ -42,6 +42,7 @@ import com.example.savr.data.repository.CategoryRepository
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.DisplayExpense
+import com.example.savr.ui.logic.EmptyState
 import com.example.savr.ui.logic.FilterButton
 import com.example.savr.ui.logic.FilterType
 import com.example.savr.ui.viewmodels.HomeViewModel
@@ -268,7 +269,7 @@ fun Home(navController: NavController, viewModel: HomeViewModel) {
                 .background(
                     Color.White, shape = RoundedCornerShape(topStart = 50.dp, topEnd = 50.dp)
                 )
-                //.verticalScroll(rememberScrollState())
+            //.verticalScroll(rememberScrollState())
         ) {
             Column( // Wrap content in a Column
                 modifier = Modifier
@@ -404,9 +405,13 @@ fun Home(navController: NavController, viewModel: HomeViewModel) {
                         .padding(16.dp)
                         .verticalScroll(rememberScrollState()) // Add this line
                 ) {
-                    for (expense in filteredExpenses) { // Use filteredExpenses here
-                        val category = categories.find { it.id == expense.categoryId }
-                        DisplayExpense(navController, expense, category)
+                    if (filteredExpenses.isEmpty()) {
+                        EmptyState(message = "No recent transactions")
+                    } else {
+                        for (expense in filteredExpenses) {
+                            val category = categories.find { it.id == expense.categoryId }
+                            DisplayExpense(navController, expense, category)
+                        }
                     }
                 }
             }

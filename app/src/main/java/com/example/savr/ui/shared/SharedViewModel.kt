@@ -9,12 +9,13 @@ import com.example.savr.R
 import com.example.savr.data.database.AppDatabase
 import com.example.savr.data.database.model.Category
 import com.example.savr.data.database.model.Expense
+import com.example.savr.data.repository.ExpenseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class SharedViewModel(application: Application) : AndroidViewModel(application) {
+class SharedViewModel(application: Application, private val expenseRepository: ExpenseRepository) : AndroidViewModel(application){
     private val categoryDao = AppDatabase.getDatabase(application).categoryDao()
     private val _categoriesList = MutableStateFlow<List<Category>>(emptyList())
     val categoriesList = _categoriesList.asStateFlow()
@@ -55,18 +56,21 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-//    suspend fun addExpense(expense: Expense) {
-//        expenseDao.insertExpense(expense)
-//    }
+    fun addExpense(expense: Expense) {
+        viewModelScope.launch {
+            expenseRepository.insertExpense(expense) // Use the expenseRepository instance
+        }
+    }
 }
 
 class SharedViewModelFactory(
-    private val application: Application
+    private val application: Application,
+    private val expenseRepository: ExpenseRepository // Add expenseRepository as a parameter
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(SharedViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return SharedViewModel(application) as T
+            return SharedViewModel(application, expenseRepository) as T // Pass expenseRepository to SharedViewModel
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
