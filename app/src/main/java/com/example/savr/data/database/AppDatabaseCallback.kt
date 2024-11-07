@@ -16,13 +16,13 @@ class AppDatabaseCallback : RoomDatabase.Callback() {
         db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Fuel', 80.50, '$currentDate', 2)")
         db.execSQL("INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Restaurant', 200.00, '$currentDate', 3)")
 
-        //insertDummyData(db) // Call the function to insert dummy data
+        insertDummyData(db) // Call the function to insert dummy data
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onOpen(db: SupportSQLiteDatabase) {
         super.onOpen(db)
-        //insertDummyData(db) // Call the function to insert dummy data
+        insertDummyData(db) // Call the function to insert dummy data
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -37,76 +37,85 @@ class AppDatabaseCallback : RoomDatabase.Callback() {
 
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-        // Insert 10 imaginary data entries
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Coffee', 35.00, '${
-                today.format(
-                    formatter
-                )
-            }', 1)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Movie Ticket', 120.00, '${
-                yesterday.format(
-                    formatter
-                )
-            }', 3)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Train ticket', 60.00, '${
-                twoDaysAgo.format(
-                    formatter
-                )
-            }', 2)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Book', 85.50, '${
-                threeDaysAgo.format(
-                    formatter
-                )
-            }', 4)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Snacks', 45.00, '${
-                fourDaysAgo.format(
-                    formatter
-                )
-            }', 1)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Data', 150.00, '${
-                fiveDaysAgo.format(
-                    formatter
-                )
-            }', 5)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Gifts', 250.00, '${
-                sixDaysAgo.format(
-                    formatter
-                )
-            }', 6)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Lunch', 75.00, '${
-                today.format(
-                    formatter
-                )
-            }', 3)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Uber', 100.00, '${
-                yesterday.format(
-                    formatter
-                )
-            }', 2)"
-        )
-        db.execSQL(
-            "INSERT INTO expenses (title, amount, date, categoryId) VALUES ('Clothes', 300.00, '${
-                threeDaysAgo.format(
-                    formatter
-                )
-            }', 7)"
-        )
+        // Get the dummy user's ID
+        val cursor = db.query("SELECT id FROM users WHERE email = 'opsc7311grm@gmail.com'")
+        cursor.moveToFirst()
+        val userId =
+            if (cursor.count > 0) cursor.getLong(cursor.getColumnIndexOrThrow("id")) else -1 // Handle case where user is not found
+        cursor.close()
+
+        if (userId != -1L) { // Only insert data if user is found
+            // Insert imaginary data entries with userId
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Coffee', 35.00, '${
+                    today.format(
+                        formatter
+                    )
+                }', 1, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Movie Ticket', 120.00, '${
+                    yesterday.format(
+                        formatter
+                    )
+                }', 3, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Train ticket', 60.00, '${
+                    twoDaysAgo.format(
+                        formatter
+                    )
+                }', 2, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Book', 85.50, '${
+                    threeDaysAgo.format(
+                        formatter
+                    )
+                }', 4, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Snacks', 45.00, '${
+                    fourDaysAgo.format(
+                        formatter
+                    )
+                }', 1, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Data', 150.00, '${
+                    fiveDaysAgo.format(
+                        formatter
+                    )
+                }', 5, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Gifts', 250.00, '${
+                    sixDaysAgo.format(
+                        formatter
+                    )
+                }', 6, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Lunch', 75.00, '${
+                    today.format(
+                        formatter
+                    )
+                }', 3, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Uber', 100.00, '${
+                    yesterday.format(
+                        formatter
+                    )
+                }', 2, $userId)"
+            )
+            db.execSQL(
+                "INSERT INTO expenses (title, amount, date, categoryId, userId) VALUES ('Clothes', 300.00, '${
+                    threeDaysAgo.format(
+                        formatter
+                    )
+                }', 7, $userId)"
+            )
+        }
     }
 }

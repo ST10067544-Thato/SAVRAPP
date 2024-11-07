@@ -93,15 +93,15 @@ fun CategoryFilter(navController: NavController, categoryName: String, viewModel
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CategoryFilterPreview() {
-    val navController = rememberNavController()
-    val viewModel =
-        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
-    CategoryFilter(
-        navController,
-        categoryName = "Groceries",
-        viewModel = viewModel
-    ) // Pass a sample category name and viewModel
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CategoryFilterPreview() {
+//    val navController = rememberNavController()
+//    val viewModel =
+//        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
+//    CategoryFilter(
+//        navController,
+//        categoryName = "Groceries",
+//        viewModel = viewModel
+//    ) // Pass a sample category name and viewModel
+//}

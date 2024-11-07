@@ -1,5 +1,7 @@
 package com.example.savr.ui.screens.login
 
+import android.app.Application
+import androidx.activity.result.launch
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.*
@@ -13,21 +15,51 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
+import com.example.savr.data.database.AppDatabase
+import com.example.savr.data.database.dao.UserDao
+import com.example.savr.data.repository.ExpenseRepository
+import com.example.savr.data.repository.UserRepository
 import com.example.savr.ui.logic.CustomNotificationBar
+import com.example.savr.ui.shared.SharedViewModel
+import com.example.savr.ui.shared.SharedViewModelFactory
+import com.example.savr.ui.viewmodels.LoginViewModel
+import com.example.savr.ui.viewmodels.LoginViewModelFactory
 
 @Composable
 fun Login(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
+    val appDatabase = AppDatabase.getDatabase(context)
+    val userRepository = UserRepository(appDatabase.userDao())
+
+    val viewModel: LoginViewModel = viewModel(
+        factory = LoginViewModelFactory(appDatabase, userRepository)
+    )
+
+
+    val sharedViewModel: SharedViewModel = viewModel( // Get SharedViewModel instance
+        factory = SharedViewModelFactory( // Pass the application context and expenseRepository to the factory
+            LocalContext.current.applicationContext as Application,
+            ExpenseRepository(
+                AppDatabase.getDatabase(LocalContext.current).expenseDao()
+            )
+        )
+    )
 
     Column(
         modifier = Modifier
@@ -141,10 +173,20 @@ fun Login(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center // Centering the button
                 ) {
-                    Button(
-                        onClick = { navController.navigate("home") {
-                            popUpTo("launch_screen") { inclusive = true } // Optional: Clear back stack
-                        } },
+                    Button(onClick = {
+                        viewModel.login(email, password,
+                            onLoginSuccess = {
+                                viewModel.fetchUser(email, password) // Fetch user data
+                                sharedViewModel.updateUserName(viewModel.userName.value) // Update SharedViewModel
+                                navController.navigate("home/$email/$password") // Navigate to home screen
+                            },
+                            onLoginFailure = {
+                                // Handle login failure (e.g., show an error message)
+                                // ...
+                            }
+                        )
+                    },
+
                         colors = ButtonDefaults.buttonColors(
                             Color(0xFFFF8D3C), // Orange background
                             contentColor = Color.White // White text color
@@ -219,7 +261,6 @@ fun Login(navController: NavController) {
                         )
                     }
                 }
-
 
                 // Centered text for sign-in options
                 Box(

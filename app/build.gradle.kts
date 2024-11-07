@@ -65,7 +65,12 @@ dependencies {
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.firebase.firestore.ktx)
     ksp(libs.androidx.room.compiler)
+
+    implementation(libs.ui.graphics) // Or your current version
+    implementation(libs.androidx.ui.tooling.preview) // Or your current version
+    implementation(libs.mpandroidchart) // Import MPAndroidChart
 
     testImplementation(libs.junit)
 

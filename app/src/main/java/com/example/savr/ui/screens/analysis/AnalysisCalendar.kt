@@ -30,14 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.savr.data.database.AppDatabase
-import com.example.savr.data.repository.CategoryRepository
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CategoryPieChart
 import com.example.savr.ui.logic.DisplayExpense
@@ -117,7 +112,8 @@ fun AnalysisCalendar(navController: NavController, viewModel: HomeViewModel) {
                         }
 
                         /// Month Dropdown
-                        DropdownMenu(expanded = expandedMonth,
+                        DropdownMenu(
+                            expanded = expandedMonth,
                             onDismissRequest = { expandedMonth = false }) {
                             (1..12).forEach { month ->
                                 DropdownMenuItem(onClick = {
@@ -133,7 +129,8 @@ fun AnalysisCalendar(navController: NavController, viewModel: HomeViewModel) {
                     }
 
                     // Year Dropdown (last 5 years)
-                    DropdownMenu(expanded = expandedYear,
+                    DropdownMenu(
+                        expanded = expandedYear,
                         onDismissRequest = { expandedYear = false }) {
                         (2019..2024).forEach { year ->
                             DropdownMenuItem(onClick = {
@@ -187,9 +184,7 @@ fun AnalysisCalendar(navController: NavController, viewModel: HomeViewModel) {
                                 TextButton(
                                     onClick = {
                                         selectedDate = LocalDate.of(
-                                            selectedYear,
-                                            selectedMonth,
-                                            day.toIntOrNull() ?: 1
+                                            selectedYear, selectedMonth, day.toIntOrNull() ?: 1
                                         ) // Update selected date
                                     }, colors = ButtonDefaults.textButtonColors(
                                         Color.Transparent // No background color for button
@@ -258,9 +253,7 @@ fun AnalysisCalendar(navController: NavController, viewModel: HomeViewModel) {
                         EmptyState(message = "No data available for this date")
                     } else {
                         CategoryPieChart(
-                            selectedDate,
-                            expenses,
-                            categories
+                            selectedDate, expenses, categories
                         )// Pass selectedDate to PieChart
                     }
                 }
@@ -324,13 +317,13 @@ private fun getMonthName(month: Int): String {
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun AnalysisCalendarPreview() {
-    val navController = rememberNavController()
-    val viewModel =
-        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
-    AnalysisCalendar(navController, viewModel)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun AnalysisCalendarPreview() {
+//    val navController = rememberNavController()
+//    val viewModel =
+//        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
+//    AnalysisCalendar(navController, viewModel)
+//}
 
 

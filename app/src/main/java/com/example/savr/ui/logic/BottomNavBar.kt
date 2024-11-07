@@ -43,10 +43,10 @@ fun BottomNavBar(
         ) {
             // Icon Buttons
             IconButton(
-                onClick = { navController.navigate("home") },// Navigate to Home on click
+                onClick = { navController.navigate("home/{email}/{password}") },// Navigate to Home on click
                 modifier = Modifier.padding(end = 20.dp)
             ) {
-                val icon = if (selectedRoute == "home") {
+                val icon = if (selectedRoute == "home/{email}/{password}") {
                     painterResource(id = R.drawable.selected_home)
                 } else {
                     painterResource(id = R.drawable.home)

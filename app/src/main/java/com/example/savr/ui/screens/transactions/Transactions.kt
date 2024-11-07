@@ -261,11 +261,11 @@ fun IncomeExpenseCard(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TransactionsPreview() {
-    val navController = rememberNavController()
-    val viewModel =
-        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
-    Transactions(navController, viewModel)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun TransactionsPreview() {
+//    val navController = rememberNavController()
+//    val viewModel =
+//        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
+//    Transactions(navController, viewModel)
+//}

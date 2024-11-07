@@ -1,6 +1,8 @@
 package com.example.savr.ui.shared
 
 import android.app.Application
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -60,6 +62,13 @@ class SharedViewModel(application: Application, private val expenseRepository: E
         viewModelScope.launch {
             expenseRepository.insertExpense(expense) // Use the expenseRepository instance
         }
+    }
+
+    private val _userName = mutableStateOf("User") // Default value
+    val userName: State<String> = _userName
+
+    fun updateUserName(name: String) {
+        _userName.value = name
     }
 }
 

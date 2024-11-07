@@ -1,5 +1,6 @@
 package com.example.savr.ui.screens
 
+import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -31,28 +32,38 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.data.database.AppDatabase
-import com.example.savr.data.repository.CategoryRepository
+import com.example.savr.data.repository.ExpenseRepository
 import com.example.savr.ui.logic.BottomNavBar
 import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.DisplayExpense
 import com.example.savr.ui.logic.EmptyState
 import com.example.savr.ui.logic.FilterButton
 import com.example.savr.ui.logic.FilterType
+import com.example.savr.ui.shared.SharedViewModel
+import com.example.savr.ui.shared.SharedViewModelFactory
 import com.example.savr.ui.viewmodels.HomeViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun Home(navController: NavController, viewModel: HomeViewModel) {
-    val expenses by viewModel.expenses.collectAsState()
+fun Home(navController: NavController, viewModel: HomeViewModel, email: String, password: String) {
     val categories by viewModel.categories.collectAsState()
     val selectedFilter by viewModel.selectedFilter.collectAsState()
+
+    val sharedViewModel: SharedViewModel = viewModel( // Get SharedViewModel instance
+        factory = SharedViewModelFactory( // Pass the application context and expenseRepository to the factory
+            LocalContext.current.applicationContext as Application,
+            ExpenseRepository(
+                AppDatabase.getDatabase(LocalContext.current).expenseDao()
+            )
+        )
+    )
+    val userName = sharedViewModel.userName.value
 
     // Filter expenses based on selectedFilter
     val filteredExpenses = when (selectedFilter) {
@@ -84,13 +95,14 @@ fun Home(navController: NavController, viewModel: HomeViewModel) {
                     .padding(bottom = 45.dp, start = 16.dp)
                     .fillMaxWidth()
             ) {
-                //personalized welcome label with name dynamic on logged in user
+                // Personalized welcome label with the user's name
                 Text(
-                    "Hi John, Welcome Back",
+                    "Hi $userName, Welcome Back",
                     color = Color(0xFFFFFFFF),
                     fontSize = 20.sp,
                     modifier = Modifier.weight(1f) // Allow text to take available space
                 )
+
                 //little notification button on the far right of the welcome label
                 IconButton(
                     onClick = { /* Handle click for icon 2 */ },
@@ -420,13 +432,13 @@ fun Home(navController: NavController, viewModel: HomeViewModel) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun HomePreview() {
-    val navController = rememberNavController()
-    val viewModel =
-        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
-    Home(navController, viewModel)
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true)
+//@Composable
+//fun HomePreview() {
+//    val navController = rememberNavController()
+//    val viewModel =
+//        HomeViewModel(CategoryRepository(AppDatabase.getDatabase(LocalContext.current))) // Provide your repository instance
+//    Home(navController, viewModel)
+//}
 

@@ -3,8 +3,6 @@ package com.example.savr.ui
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
@@ -14,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.savr.data.database.AppDatabase
 import com.example.savr.data.repository.CategoryRepository
+import com.example.savr.data.repository.UserRepository
 import com.example.savr.ui.screens.Home
 import com.example.savr.ui.screens.analysis.AnalysisCalendar
 import com.example.savr.ui.screens.category.Categories
@@ -41,17 +40,38 @@ fun Navigation() {
     // Initialize the ViewModel using the context
     val viewModel: HomeViewModel = remember {
         val database = AppDatabase.getDatabase(context)
-        val repository = CategoryRepository(database)
-        HomeViewModel(repository)
+        val categoryRepository = CategoryRepository(database)
+
+        val userDao = database.userDao()
+        val userRepository = UserRepository(userDao)
+
+        HomeViewModel(categoryRepository, userRepository)
     }
 
-    NavHost(navController = navController, startDestination = "home") {
+    NavHost(navController = navController, startDestination = "login") {
         composable("launch_screen") { LaunchScreen(navController) }
         composable("launch_screen_2") { LaunchScreen2(navController) }
 
         composable("login") { Login(navController) }
         composable("signup") { SignUp(navController) }
-        composable("home") { Home(navController, viewModel) }
+        // composable("home") { Home(navController, viewModel, email, password) }
+
+        // Add composable for the dynamic route
+        composable(route = "home/{email}/{password}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType },
+                navArgument("password") { type = NavType.StringType })) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            val password = backStackEntry.arguments?.getString("password") ?: ""
+            // Pass email and password to Home or a different composable
+            Home(
+                navController,
+                viewModel,
+                email,
+                password
+            ) // Assuming Home can handle these arguments
+        }
+
+
         composable("analysis") { AnalysisCalendar(navController, viewModel) }
         composable("transactions") { Transactions(navController, viewModel) }
         composable("add_expense") { AddandViewExpenses(navController) }

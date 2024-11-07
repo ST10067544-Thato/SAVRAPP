@@ -5,8 +5,6 @@ import com.example.savr.data.database.model.Expense
 
 class ExpenseRepository(private val expenseDao: ExpenseDao) {
 
-    // ... other code ...
-
     suspend fun insertExpense(expense: Expense) {
         expenseDao.insertExpense(expense)
     }

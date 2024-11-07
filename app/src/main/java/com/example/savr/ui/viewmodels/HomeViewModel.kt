@@ -1,22 +1,32 @@
 package com.example.savr.ui.viewmodels
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.savr.data.database.model.Expense
+import com.example.savr.data.database.model.User
 import com.example.savr.data.repository.CategoryRepository
+import com.example.savr.data.repository.UserRepository
 import com.example.savr.ui.logic.FilterType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-class HomeViewModel(private val repository: CategoryRepository) : ViewModel() {
+class HomeViewModel(
+    private val repository: CategoryRepository,
+    private val userRepository: UserRepository // Add UserRepository as a dependency
+) : ViewModel() {
     private val _selectedFilter = MutableStateFlow(FilterType.DAILY) // Initialize with DAILY
     val selectedFilter: StateFlow<FilterType> = _selectedFilter.asStateFlow() // Update this line
 
@@ -26,8 +36,8 @@ class HomeViewModel(private val repository: CategoryRepository) : ViewModel() {
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     val categories = repository.getCategories().stateIn(
-            viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
-        )
+        viewModelScope, SharingStarted.WhileSubscribed(), emptyList()
+    )
 
     fun updateFilter(filterType: FilterType) {
         _selectedFilter.value = filterType

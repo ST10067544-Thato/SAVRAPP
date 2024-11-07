@@ -3,7 +3,6 @@ package com.example.savr.ui.screens.profile
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,8 +16,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +36,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.savr.R
 import com.example.savr.ui.logic.BottomNavBar
-import com.example.savr.ui.logic.CustomNotificationBar
 import com.example.savr.ui.logic.ScreenTopSection
 import com.example.savr.ui.screens.category.LogoutDialog
 
@@ -59,7 +54,10 @@ fun Profile(navController: NavController) {
                 .padding(top = 10.dp, bottom = 15.dp)
                 .padding(horizontal = 36.dp) // Horizontal padding for the content
         ) {
-            ScreenTopSection(navController = navController, title = "Profile", onBack = { navController.popBackStack() }) // Add this line
+            ScreenTopSection(
+                navController = navController,
+                title = "Profile",
+                onBack = { navController.popBackStack() }) // Add this line
         }
 
         Box(
@@ -99,10 +97,21 @@ fun Profile(navController: NavController) {
                 )
 
                 // Profile items
-                ProfileItem("Edit Profile", R.drawable.profile_settings) { navController.navigate("edit_profile")  }
-                ProfileItem("Security", R.drawable.security) { navController.navigate("security_settings")}
-                ProfileItem("Settings", R.drawable.settings) { navController.navigate("notification_settings") }
-                ProfileItem("Logout", R.drawable.logout) {showLogoutDialog = true} // Show dialog on Logout click
+                ProfileItem(
+                    "Edit Profile",
+                    R.drawable.profile_settings
+                ) { navController.navigate("edit_profile") }
+                ProfileItem(
+                    "Security",
+                    R.drawable.security
+                ) { navController.navigate("security_settings") }
+                ProfileItem(
+                    "Settings",
+                    R.drawable.settings
+                ) { navController.navigate("notification_settings") }
+                ProfileItem("Logout", R.drawable.logout) {
+                    showLogoutDialog = true
+                } // Show dialog on Logout click
             }
         }
         BottomNavBar(navController = navController, selectedRoute = "profile")
@@ -118,9 +127,7 @@ fun Profile(navController: NavController) {
 
 @Composable
 fun ProfileItem(
-    text: String,
-    iconRes: Int,
-    onClick: () -> Unit
+    text: String, iconRes: Int, onClick: () -> Unit
 ) { // Added onClick parameter, removed color
     OutlinedButton(
         onClick = onClick, // Pass onClick lambda to OutlinedButton
